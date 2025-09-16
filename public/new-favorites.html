@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Omnitrix Favorites</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="new-favorites.css">
+</head>
+<body>
+    <header>
+        <nav id="navbar"></nav>
+    </header>
+
+    <main class="favorites-container">
+        <aside class="playlist-controls">
+            <h2>Playlists</h2>
+            
+            <h3 id="active-playlist-name">Loading...</h3>
+            
+            <div id="playlists-container">
+            </div>
+            
+            <button id="create-playlist-btn" class="btn">Create New Playlist</button>
+        </aside>
+
+        <section class="omnitrix-display">
+            <div class="omnitrix-symbol">
+                <div id="alien-icon-grid">
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="auth.js"></script>
+    
+    <script src="new-favorites.js"></script>
+</body>
+</html>

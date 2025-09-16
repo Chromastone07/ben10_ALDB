@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ben 10: Character Files</title>
+    <link rel="stylesheet" href="characters.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="main-container">
+        <header class="navbar">
+            <a href="index.html" class="nav-link">← Back to Aliens</a>
+            <!-- <div id="main-nav" class="main-nav"></div> -->
+            <!-- <a href="planets.html" class="nav-link" >Planets</a> -->
+            <div class="filter-nav">
+                <button class="filter-btn active" data-category="All">ALL</button>
+                <button class="filter-btn" data-category="Character">CHARACTERS</button>
+                <button class="filter-btn" data-category="Villain">VILLAINS</button>
+                <button class="filter-btn" data-category="Anti-Hero">ANTI-HEROES</button>
+            </div>
+        </header>
+
+        <div class="search-container">
+            <input type="text" id="search-bar" class="search-bar" placeholder="Search for a character...">
+        </div>
+
+        <main id="character-grid" class="character-grid">
+            </main>
+
+        <div id="load-more-container" class="load-more-container">
+            <button id="load-more-characters" class="load-more-btn">Load More</button>
+        </div>
+    </div>
+
+    <div id="modal" class="modal-overlay">
+        <div class="detail-card">
+            <span class="close-button">&times;</span>
+            <div class="detail-card-header">
+                <div class="detail-card-image-container">
+                    <img id="modal-image" src="images/ben10.png" alt="Character Image">
+                </div>
+                <h2 id="modal-name">CHARACTER NAME</h2>
+                <p id="modal-species" class="modal-species"></p>
+            </div>
+            <div class="detail-card-body">
+                <div class="tab-nav">
+                    <button class="tab-btn" data-tab="tab-personality">Personality</button>
+                    <button class="tab-btn" data-tab="tab-appearance">Appearance</button>
+                    <button class="tab-btn" data-tab="tab-powers">Abilities</button>
+                    <button class="tab-btn" data-tab="tab-history">History</button>
+                    <button class="tab-btn" data-tab="tab-relationships">Relationships</button>
+
+   
+
+
+</div>
+                </div>
+                <div class="tab-content">
+                    <div id="tab-personality" class="tab-pane"></div>
+                    <div id="tab-appearance" class="tab-pane"></div>
+                    <div id="tab-powers" class="tab-pane"></div>
+                    <div id="tab-history" class="tab-pane"></div>
+                    <div id="tab-relationships" class="tab-pane"></div>
+                </div>
+
+                 <div class="know-more-container">
+        <button class="know-more-btn">Know More...</button>
+        <div class="ai-details-content"></div>
+    </div>
+</div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-notification" class="toast"></div>
+    <script src="auth.js"></script>
+    <script src="characters.js"></script>
+
+    
+</body>
+</html>

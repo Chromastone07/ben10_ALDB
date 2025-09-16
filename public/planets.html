@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ben 10: Planetary Database</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+             <a href="index.html" class="nav-logo">
+                <img src="images/ben10.png" alt="Ben 10 Logo" class="logo-img">
+                Alien Database
+            </a>
+           <div id="main-nav" class="main-nav"></div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="alien-section">
+            <h2>Plumber Database: <span>Known Worlds</span></h2>
+            <div id="planet-container" class="alien-container">
+                </div>
+            <div id="load-more-container" class="load-more-container">
+                <button id="load-more-planets" class="load-more-btn">Load More</button>
+            </div>
+        </section>
+    </main>
+
+    <div id="planet-modal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <div class="modal-body">
+                <div class="animation-pane">
+                     <img id="modal-planet-img" class="planet-image" src="" alt="Planet">
+                </div>
+                <div class="details-pane">
+                    <h2 id="modal-planet-name">Planet Name</h2>
+                    <p><strong>Native Species:</strong> <span id="modal-planet-species"></span></p>
+                    <p><strong>First Appearance:</strong> <span id="modal-planet-appearance"></span></p>
+                    <h3>Description</h3>
+                    <p id="modal-planet-description"></p>
+                    <h3>Habitat</h3>
+                    <p id="modal-planet-habitat"></p>
+ <button class="add-to-omnitrix-btn" data-planet-id="">Add to My Omnitrix</button>
+                     <div class="know-more-container">
+        <button class="know-more-btn">Know More...</button>
+        <div class="ai-details-content">
+            </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-notification" class="toast"></div>
+    <script src="auth.js"></script>
+    <script src="planets.js"></script>
+
+    
+</body>
+</html>
