@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "description": "A database for Ben 10 aliens and characters",
   "main": "server.js",
-  
   "scripts": {
-    "start": "node local.js"
+    "start": "node server.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.11.3",

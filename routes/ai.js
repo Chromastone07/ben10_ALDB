@@ -17,7 +17,7 @@ router.get('/details/:type/:name', async (req, res) => {
     try {
         const { type, name } = req.params;
 
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
         // const prompt = `
         //     You are an expert on the Ben 10 universe.
