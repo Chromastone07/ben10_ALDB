@@ -1,5 +1,3 @@
-
-
 document.addEventListener('DOMContentLoaded', () => {
     const alienContainer = document.querySelector('.alien-container');
     const searchBar = document.getElementById('search-bar');
@@ -16,9 +14,23 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentSeries = 'All';
     let searchTimeout;
     let toastTimeout;
+    let activeAlienPlaylistId = null;
 
-    if (!window.userFavorites) window.userFavorites = {};
-    if (!window.userFavorites.aliens) window.userFavorites.aliens = new Set();
+    const getActivePlaylistId = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) return null;
+        try {
+            const res = await fetch('/api/playlists/aliens', { headers: { 'x-auth-token': token } });
+            if (res.ok) {
+                const data = await res.json();
+                return data.activePlaylistId;
+            }
+            return null;
+        } catch (err) {
+            console.error('Could not fetch active alien playlist ID', err);
+            return null;
+        }
+    };
 
     const showToast = (message) => {
         toast.textContent = message;
@@ -28,45 +40,33 @@ document.addEventListener('DOMContentLoaded', () => {
             toast.classList.remove('show');
         }, 3000);
     };
-
-    const toggleFavorite = async (alienId, buttonEl, type = 'icon') => {
+    
+    const addItemToActivePlaylist = async (alienId, alienName) => {
         const token = localStorage.getItem('token');
-        if (!token) return alert('Please log in to add to your Omnitrix.');
+        if (!token) return showToast('Please log in to add to your Omnitrix.');
+        
+        if (!activeAlienPlaylistId) {
+            return showToast('Please select an active alien playlist in "My Omnitrix".', true);
+        }
 
         try {
-            const res = await fetch(`/api/favorites/alien/${alienId}`, {
-                method: 'POST',
-                headers: { 'x-auth-token': token }
+            const res = await fetch(`/api/playlists/aliens/${activeAlienPlaylistId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+                body: JSON.stringify({ itemId: alienId, action: 'add' })
             });
             if (res.ok) {
-                const favoriteIds = await res.json();
-                window.userFavorites.aliens = new Set(favoriteIds);
-
-                updateAllFavoriteIcons(alienId);
-
-                if (window.userFavorites.aliens.has(alienId)) {
-                    showToast(`${buttonEl.dataset.name} added to My Omnitrix!`);
-                } else {
-                    showToast(`${buttonEl.dataset.name} removed from My Omnitrix.`);
-                }
+                showToast(`${alienName} added to your active playlist!`);
+            } else {
+                const errData = await res.json();
+                throw new Error(errData.msg || 'Failed to add alien to playlist');
             }
         } catch (err) {
-            console.error('Failed to toggle favorite', err);
+            console.error('Failed to add to playlist', err);
+            showToast(err.message, true);
         }
     };
 
-    const updateAllFavoriteIcons = (alienId) => {
-        const isFavorited = window.userFavorites.aliens.has(alienId);
-
-        const cardIcon = document.querySelector(`.favorite-omnitrix[data-id="${alienId}"]`);
-        if (cardIcon) cardIcon.classList.toggle('favorited', isFavorited);
-
-        const modalBtn = document.getElementById('modal-favorite-btn');
-        if (modalBtn && modalBtn.dataset.id === String(alienId)) {
-            modalBtn.classList.toggle('favorited', isFavorited);
-            modalBtn.textContent = isFavorited ? 'Remove from Omnitrix' : 'Add to Your Omnitrix';
-        }
-    };
 
     const fetchAliens = async (page, series, shouldAppend = false) => {
         if (!shouldAppend) {
@@ -89,66 +89,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Could not fetch aliens:", error);
         }
     };
-
-
-
-
-async function loadUserFavorites() {
-    try {
-        const res = await fetch('/api/favorites/ids', {
-            headers: { 'x-auth-token': localStorage.getItem('token') }
-        });
-
-        if (!res.ok) {
-            console.error("Could not fetch favorites");
-            return;
-        }
-
-        const favorites = await res.json();
-
-        const omnitrixContainer = document.getElementById('my-omnitrix');
-        omnitrixContainer.innerHTML = '';
-
-        async function renderFavorites(ids, type) {
-            for (const id of ids) {
-                try {
-                    const itemRes = await fetch(`/api/${type}s/${id}`);
-                    if (!itemRes.ok) continue;
-
-                    const item = await itemRes.json();
-
-                    const card = document.createElement('div');
-                    card.className = 'alien-card';
-                    card.innerHTML = `
-                        <div class="alien-image-wrapper">
-                            <img class="alien-image" src="${item.image || 'images/placeholder.png'}" alt="${item.name}">
-                        </div>
-                        <div class="alien-info">
-                            <h3>${item.name}</h3>
-                        </div>
-                    `;
-                    omnitrixContainer.appendChild(card);
-                } catch (err) {
-                    console.error(`Error rendering ${type} ${id}:`, err);
-                }
-            }
-        }
-
-        await renderFavorites(favorites.aliens, 'alien');
-        await renderFavorites(favorites.characters, 'character');
-        await renderFavorites(favorites.planets, 'planet');
-
-    } catch (err) {
-        console.error("Error loading favorites:", err);
-    }
-}
-
-document.addEventListener('DOMContentLoaded', loadUserFavorites);
-
-
-
-
-
 
     const fetchSearchResults = async (term) => {
         alienContainer.innerHTML = `<div class="loader-container"><div class="loader"></div></div>`;
@@ -179,18 +119,16 @@ document.addEventListener('DOMContentLoaded', loadUserFavorites);
         aliensToDisplay.forEach(alien => {
             const alienCard = document.createElement('div');
             alienCard.className = 'alien-card';
-
-            const isFavorited = window.userFavorites.aliens.has(alien._id);
-
+            
             alienCard.innerHTML = `
-                <div class="favorite-omnitrix ${isFavorited ? 'favorited' : ''}" data-id="${alien._id}" data-name="${alien.name}" title="Add to My Omnitrix"></div>
+                <div class="favorite-omnitrix" data-id="${alien._id}" data-name="${alien.name}" title="Add to Active Playlist"></div>
                 <div class="alien-image-wrapper"><img class="alien-image" src="${alien.image || 'images/placeholder.png'}" alt="${alien.name}"></div>
                 <div class="alien-info"><h3>${alien.name}</h3><p>${alien.species}</p></div>
             `;
 
             alienCard.addEventListener('click', (e) => {
                 if (e.target.classList.contains('favorite-omnitrix')) {
-                    toggleFavorite(alien._id, e.target, 'icon');
+                    addItemToActivePlaylist(alien._id, alien.name);
                 } else {
                     showAlienDetails(alien);
                 }
@@ -231,19 +169,18 @@ document.addEventListener('DOMContentLoaded', loadUserFavorites);
         const knowMoreBtn = modal.querySelector('.know-more-btn');
         const aiContentDiv = modal.querySelector('.ai-details-content');
         const detailsPane = modal.querySelector('.details-pane');
-        const isFavorited = window.userFavorites.aliens.has(alien._id);
 
         const oldBtn = document.getElementById('modal-favorite-btn');
         if (oldBtn) oldBtn.remove();
 
         const favButton = document.createElement('button');
         favButton.id = 'modal-favorite-btn';
-        favButton.className = `add-to-omnitrix-btn ${isFavorited ? 'favorited' : ''}`;
-        favButton.textContent = isFavorited ? 'Remove from Omnitrix' : 'Add to Your Omnitrix';
+        favButton.className = `add-to-omnitrix-btn`;
+        favButton.textContent = 'Add to Active Playlist';
         favButton.dataset.id = String(alien._id);
         favButton.dataset.name = alien.name;
-        favButton.onclick = (e) => {
-            toggleFavorite(alien._id, e.target, 'button');
+        favButton.onclick = () => {
+            addItemToActivePlaylist(alien._id, alien.name);
         };
         detailsPane.appendChild(favButton);
 
@@ -312,11 +249,11 @@ document.addEventListener('DOMContentLoaded', loadUserFavorites);
         updateDisplay();
         modal.classList.add('active');
     }
-
+    
     const closeModal = () => {
         modal.classList.remove('active');
     };
-
+    
     closeButton.addEventListener('click', closeModal);
     modal.addEventListener('click', (e) => {
         if (e.target === modal) closeModal();
@@ -405,5 +342,8 @@ document.addEventListener('DOMContentLoaded', loadUserFavorites);
         if (e.key === 'Enter') sendChatMessage();
     });
 
+    getActivePlaylistId().then(id => {
+        activeAlienPlaylistId = id;
+    });
     fetchAliens(currentPage, currentSeries);
 });

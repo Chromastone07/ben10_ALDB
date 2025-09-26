@@ -1,6 +1,3 @@
-
-
-
 document.addEventListener('DOMContentLoaded', () => {
     const planetContainer = document.getElementById('planet-container');
     const loadMoreButton = document.getElementById('load-more-planets');
@@ -8,42 +5,57 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeButton = modal.querySelector('.close-button');
     const toastNotification = document.getElementById('toast-notification'); 
     let currentPage = 1;
-    let favoritePlanetIds = []; 
+    let activePlanetPlaylistId = null;
 
-    const favoritesChannel = new BroadcastChannel('favorites_channel');
+    const getActivePlaylistId = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) return null;
+        try {
+            const res = await fetch('/api/playlists/planets', { headers: { 'x-auth-token': token } });
+            if (res.ok) {
+                const data = await res.json();
+                return data.activePlaylistId;
+            }
+            return null;
+        } catch (err) {
+            console.error('Could not fetch active planet playlist ID', err);
+            return null;
+        }
+    };
 
     const showToast = (message, isError = false) => {
         if (!toastNotification) return;
-
         toastNotification.textContent = message;
-        toastNotification.classList.add('show');
-        if (isError) {
-            toastNotification.classList.add('error');
-        } else {
-            toastNotification.classList.remove('error');
-        }
-
-        setTimeout(() => {
-            toastNotification.classList.remove('show');
-        }, 3000); 
+        toastNotification.className = `toast show ${isError ? 'error' : ''}`;
+        setTimeout(() => toastNotification.classList.remove('show'), 3000); 
     };
 
+    // MODIFIED: This function now adds to the active playlist.
+    const addItemToActivePlaylist = async (planetId, planetName) => {
+        const token = localStorage.getItem('token');
+        if (!token) return showToast('Please log in to add planets.');
+        
+        if (!activePlanetPlaylistId) {
+            return showToast('Please select an active planet playlist in "My Omnitrix".', true);
+        }
 
-    const fetchFavoritePlanetIds = async () => {
         try {
-            const res = await fetch("/api/favorites/ids", {
-                headers: { "x-auth-token": localStorage.getItem("token") }
+            const res = await fetch(`/api/playlists/planets/${activePlanetPlaylistId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+                body: JSON.stringify({ itemId: planetId, action: 'add' })
             });
-            if (!res.ok) {
-                throw new Error("Failed to fetch favorite IDs");
+            if (res.ok) {
+                showToast(`${planetName} added to your active playlist!`);
+            } else {
+                 const errData = await res.json();
+                throw new Error(errData.msg || 'Failed to add planet to playlist');
             }
-            const data = await res.json();
-            favoritePlanetIds = data.planets.map(planet => planet._id || planet);
         } catch (err) {
-            console.error("Error fetching favorite planet IDs:", err);
+            console.error('Failed to add to playlist', err);
+            showToast(err.message, true);
         }
     };
-
 
     const fetchPlanets = async (page, shouldAppend = false) => {
         try {
@@ -61,7 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         <img class="alien-image" src="${planet.image || 'images/placeholder.png'}" alt="${planet.name}">
                     </div>
                     <div class="alien-info"><h3>${planet.name}</h3></div>
-                     ${favoritePlanetIds.includes(planet._id) ? '<div class="favorite-omnitrix favorited"></div>' : ''} <!-- Add favorite icon -->
                 `;
                 planetCard.addEventListener('click', () => showPlanetDetails(planet));
                 planetContainer.appendChild(planetCard);
@@ -86,68 +97,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const aiContentDiv = modal.querySelector('.ai-details-content');
         const addToOmnitrixBtn = modal.querySelector('.add-to-omnitrix-btn'); 
 
-
         if (addToOmnitrixBtn) {
-            addToOmnitrixBtn.dataset.planetId = planet._id; 
-            const isFavorited = favoritePlanetIds.includes(planet._id);
-            addToOmnitrixBtn.textContent = isFavorited ? 'Remove from My Omnitrix' : 'Add to My Omnitrix';
-            addToOmnitrixBtn.classList.toggle('favorited', isFavorited);
-            addToOmnitrixBtn.onclick = async () => {
-                const planetId = addToOmnitrixBtn.dataset.planetId;
-                const method = favoritePlanetIds.includes(planetId) ? 'DELETE' : 'POST';
-                const url = `/api/favorites/planet/${planetId}`;
-
-                try {
-                    const res = await fetch(url, {
-                        method: method,
-                        headers: { 'x-auth-token': localStorage.getItem('token') }
-                    });
-
-                    if (!res.ok) {
-                        throw new Error(`Failed to ${method === 'POST' ? 'add' : 'remove'} from favorites`);
-                    }
-
-                    if (method === 'POST') {
-                        favoritePlanetIds.push(planetId);
-                        showToast('Planet added to My Omnitrix!');
-                    } else {
-                        favoritePlanetIds = favoritePlanetIds.filter(id => id !== planetId);
-                        showToast('Planet removed from My Omnitrix!');
-                    }
-
-                    const isNowFavorited = favoritePlanetIds.includes(planetId);
-                    addToOmnitrixBtn.textContent = isNowFavorited ? 'Remove from My Omnitrix' : 'Add to My Omnitrix';
-                    addToOmnitrixBtn.classList.toggle('favorited', isNowFavorited);
-
-                    const planetCard = document.querySelector(`.alien-card[data-planet-id='${planetId}']`);
-                    if (planetCard) {
-                        let favIcon = planetCard.querySelector('.favorite-omnitrix');
-                        if (isNowFavorited && !favIcon) {
-                            favIcon = document.createElement('div');
-                            favIcon.className = 'favorite-omnitrix favorited';
-                            planetCard.appendChild(favIcon);
-                        } else if (!isNowFavorited && favIcon) {
-                            favIcon.remove();
-                        }
-                    }
-
-                    favoritesChannel.postMessage({ favoritesUpdated: true });
-
-
-                } catch (err) {
-                    console.error(`Error ${method === 'POST' ? 'adding' : 'removing'} from favorites:`, err);
-                    showToast(`Error ${method === 'POST' ? 'adding' : 'removing'} planet.`, true);
-                }
+            addToOmnitrixBtn.textContent = 'Add to Active Playlist';
+            addToOmnitrixBtn.onclick = () => {
+                addItemToActivePlaylist(planet._id, planet.name);
             };
         }
-
 
         const fetchAiDetails = async () => {
             aiContentDiv.innerHTML = '<div class="loading-spinner"></div>';
             knowMoreBtn.style.display = 'none';
 
             try {
-const response = await fetch(`/api/ai/details/planet/${encodeURIComponent(planet.name)}`);
+                const response = await fetch(`/api/ai/details/planet/${encodeURIComponent(planet.name)}`);
                 const htmlContent = await response.text();
                 aiContentDiv.innerHTML = htmlContent;
             } catch (err) {
@@ -161,26 +123,26 @@ const response = await fetch(`/api/ai/details/planet/${encodeURIComponent(planet
         knowMoreBtn.style.display = 'block';
         knowMoreBtn.onclick = fetchAiDetails;
 
-
         modal.classList.add('active');
-
-        const closeModal = () => {
-            modal.classList.remove('active');
-        };
-
-        closeButton.addEventListener('click', closeModal);
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) closeModal();
-        });
     };
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+    };
+
+    closeButton.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
 
     loadMoreButton.addEventListener('click', () => {
         currentPage++;
         fetchPlanets(currentPage, true);
     });
-
-    fetchFavoritePlanetIds().then(() => {
-        fetchPlanets(currentPage);
+    
+    // Initial Load
+    getActivePlaylistId().then(id => {
+        activePlanetPlaylistId = id;
     });
-
+    fetchPlanets(currentPage);
 });

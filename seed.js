@@ -28,20 +28,25 @@ const alienData = [
         powersAndAbilities: 'Diamondhead can manipulate his crystalline body to create crude weapons like swords and shields, fire crystal shards, and regenerate from significant damage.',
         history: 'An essential alien in the Omnitrix, his DNA was used by Ben to restore the entire Petrosapien species after their home world was destroyed.'
     },
-    {
+    
+
+
+      {
         name: 'Humungousaur',
         species: 'Vaxasaurian',
         homePlanet: 'Terradino',
         series: ['Alien Force', 'Ultimate Alien', 'Omniverse'],
         image: 'images/humungousaur.png',
+        abilities: ['Enhanced Strength', 'Size Alteration', 'Enhanced Durability', 'Powerful Tail'],
         weaknesses: ['Large size makes him an easy target', 'Vulnerable to electricity'],
         ultimateForm: 'Ultimate Humungousaur',
         ultimateImage: 'images/ultimate_humungousaur.png',
         ultimateAbilities: ['Can turn hands into missile launchers', 'Shell-like plated armor', 'Greatly enhanced strength'],
-        appearance: 'A large, humanoid dinosaur-like alien with tan, armored skin. He has a powerful tail and a physique resembling a Tyrannosaurus Rex.',
-        personality: 'Aggressive and bad-tempered, Humungousaur enjoys smashing things. Despite this, he is undeniably heroic.',
-        powersAndAbilities: 'Humungousaur possesses immense super-strength and a highly durable, armored hide. His key ability is to increase his size up to 60 feet tall, which further increases his strength.',
-        history: 'One of Ben\'s go-to aliens for heavy-duty combat, first unlocked in the Alien Force series.'
+         personality: 'Aggressive and bad-tempered, Humungousaur enjoys smashing things. Despite this, he is undeniably heroic.',
+         powersAndAbilities: 'Humungousaur possesses immense super-strength and a highly durable, armored hide. His key ability is to increase his size up to 60 feet tall, which further increases his strength.',
+         history: 'One of Ben\'s go-to aliens for heavy-duty combat, first unlocked in the Alien Force series.'
+    
+
     },
 
   

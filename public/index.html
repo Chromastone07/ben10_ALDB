@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -96,4 +96,104 @@
 
 
 
+ -->
 
+
+
+
+
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ben 10: Alien Database</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <a href="index.html" class="nav-logo">
+                <img src="images/ben10.png" alt="Ben 10 Logo" class="logo-img">
+                Alien Database
+            </a>
+            <div id="main-nav" class="main-nav"></div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="alien-section">
+            <h2>Alien life-form Database: <span>Alien Files</span></h2>
+            <div class="search-container">
+<input type="text" id="search-bar" name="alien_search" class="search-bar" placeholder="Search for an alien...">
+            </div>
+            <div class="filter-nav">
+                <button class="filter-btn active" data-series="All">All Aliens</button>
+                <button class="filter-btn" data-series="Classic">Classic</button>
+                <button class="filter-btn" data-series="Alien Force">Alien Force</button>
+                <button class="filter-btn" data-series="Ultimate Alien">Ultimate Alien</button>
+                <button class="filter-btn" data-series="Omniverse">Omniverse</button>
+                <button class="filter-btn" data-series="Reboot">Reboot</button>
+            </div>
+            <div class="alien-container"></div>
+            
+            <div id="load-more-container" class="load-more-container">
+                <button id="load-more-aliens" class="load-more-btn">Load More</button>
+            </div>
+        </section>
+    </main>
+
+    <div id="alien-modal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <div class="modal-body">
+                <div class="animation-pane">
+                    <div class="animation-stage">
+                        <img id="anim-omnitrix" src="images/omnitrix.png" alt="Omnitrix">
+                        <div id="anim-glow"></div>
+                        <img id="anim-alien-img" src="" alt="Alien Hologram">
+                    </div>
+                </div>
+               
+
+
+            <div class="details-pane">
+    <h2 id="modal-alien-name">Alien Name</h2>
+    <div id="ultimate-control" class="ultimate-control"></div> <p><strong>Species:</strong> <span id="modal-alien-species"></span></p>
+    <p><strong>Home Planet:</strong> <span id="modal-alien-planet"></span></p>
+    <h3>Abilities</h3>
+    <ul id="modal-alien-abilities"></ul>
+    <h3>Weaknesses</h3>
+    <ul id="modal-alien-weaknesses"></ul>
+    <div class="know-more-container">
+        <button class="know-more-btn">Know More...</button>
+        <div class="ai-details-content">
+            </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-notification" class="toast"></div>
+    <script src="auth.js"></script>
+    <script src="script.js"></script>
+
+
+    <div id="chat-widget">
+    <button id="chat-toggle-btn">?</button>
+    <div id="chat-window" class="hidden">
+        <div id="chat-header">
+    <span>Ask Azmuth</span>
+    <span id="chat-tts-btn" title="Toggle Voice">🔊</span>
+</div>
+        <div id="chat-messages"></div>
+        <div id="chat-input-container">
+<input type="text" id="chat-input" name="chat_message" placeholder="Query the Galvan...">
+            <button id="chat-send-btn">→</button>
+        </div>
+    </div>
+</div>
+</body>
+</html>
