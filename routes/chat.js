@@ -1,12 +1,4 @@
 
-
-
-
-
-
-
-
-
 const express = require('express');
 const router = express.Router();
 const { GoogleGenerativeAI } = require('@google/generative-ai');
@@ -31,7 +23,7 @@ AZMUTH:`;
 
     try {
         console.log("Attempting to use Google Gemini...");
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
         const result = await model.generateContent(azmuthPrompt);
         const response = await result.response;
         const text = response.text();
