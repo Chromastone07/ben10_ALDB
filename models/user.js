@@ -22,7 +22,10 @@ const userSchema = new mongoose.Schema({
     
     activeAlienPlaylist: { type: mongoose.Schema.Types.ObjectId },
     activeCharacterPlaylist: { type: mongoose.Schema.Types.ObjectId },
-    activePlanetPlaylist: { type: mongoose.Schema.Types.ObjectId }
+    activePlanetPlaylist: { type: mongoose.Schema.Types.ObjectId },
+
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date }
 
 }, { timestamps: true });
 

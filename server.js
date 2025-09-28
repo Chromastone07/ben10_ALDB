@@ -22,7 +22,6 @@ app.use('/api/chat', require('./routes/chat'));
 app.use('/api/ai', require('./routes/ai'));
 
 app.use('/api/users', require('./routes/users'));
-app.use('/api/favorites', require('./routes/favorites'));
 app.use('/api/playlists', require('./routes/playlists'));
 app.use('/api/details', require('./routes/details'));
 

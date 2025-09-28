@@ -1,6 +1,10 @@
 
 
 
+
+
+
+
 :root {
     --bg-navy: #0d1b2a;
     --bg-card: #1b263b;
@@ -80,10 +84,6 @@ body {
     100% { opacity: 0.7; transform: scaleX(0.2); }
 }
 
-
-
-
-
 .logo-img { height: 32px; width: 42px; }
 .main-nav { display: flex; gap: 1.5rem; }
 .nav-link { 
@@ -138,18 +138,15 @@ body {
 }
 .alien-card {
     background-color: var(--bg-card);
-    border: 1px solid var(--accent-cyan);
+    border: 1px solid var(--border-color);
     border-radius: 0.75rem;
     padding: 1rem;
     text-align: center;
     cursor: pointer;
     transition: all 0.3s ease-in-out;
-    box-shadow: 0 0 40px var(--glow-cyan);
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
     position: relative; overflow: hidden;
 }
-
-
-
 
 .alien-card:hover { transform: translateY(-5px); border-color: var(--accent-cyan); box-shadow: 0 4px 20px var(--glow-cyan); }
 .alien-image-wrapper {
@@ -211,7 +208,7 @@ body {
     cursor: pointer; z-index: 10; transition: color 0.2s;
 }
 .close-button:hover { color: var(--accent-cyan); }
-.modal-body { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center; }
+.modal-body { display: grid; grid-template-columns: 1fr 1.5fr; gap: 2rem; align-items: center; }
 .animation-pane { display: flex; align-items: center; justify-content: center; height: 400px; }
 .animation-stage { position: relative; width: 250px; height: 250px; display: flex; align-items: center; justify-content: center; }
 #anim-omnitrix {
@@ -244,7 +241,7 @@ body {
 }
 .details-pane { max-height: 400px; overflow-y: auto; padding-right: 1rem; }
 #modal-alien-name { color: var(--accent-cyan); font-size: 2.5rem; text-shadow: 0 0 10px var(--glow-cyan); }
-.details-pane h3 { margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem; color: var(--accent-silver); }
+.details-pane h3 { margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem; color: var(--accent-green); }
 .details-pane ul { list-style: disc; padding-left: 20px; margin-top: 0.5rem; }
 .ultimate-control { margin: 0.5rem 0 1rem; height: 40px; }
 .ultimate-btn {
@@ -270,14 +267,6 @@ body {
 ::-webkit-scrollbar-thumb { background-color: var(--accent-cyan); border-radius: 20px; border: 3px solid var(--bg-navy); }
 ::-webkit-scrollbar-thumb:hover { background-color: #5ffbff; }
 
-
-
-
-
-
-
-
-
 .planet-image {
     width: 250px;
     height: 250px;
@@ -287,8 +276,32 @@ body {
     box-shadow: 0 0 20px var(--glow-cyan);
 }
 
+/* --- NEW PLANET MODAL STYLES --- */
+#planet-modal .details-pane #modal-planet-name {
+    font-size: 2.5rem;
+    color: var(--accent-cyan);
+    text-shadow: 0 0 10px var(--glow-cyan);
+    margin-bottom: 1rem;
+}
 
+#planet-modal .details-pane p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
 
+#planet-modal .details-pane strong {
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+#planet-modal .details-pane h3 {
+    color: var(--accent-green);
+    border-top: 1px solid var(--border-color);
+    padding-top: 1rem;
+    margin-top: 1rem;
+    font-size: 1.2rem;
+}
+/* --- END OF NEW STYLES --- */
 
 #chat-widget {
     position: fixed;
@@ -391,9 +404,6 @@ body {
 }
 .hidden { display: none; }
 
-
-
-
 #chat-header {
     display: flex;
     justify-content: space-between;
@@ -411,12 +421,6 @@ body {
 #chat-tts-btn.active {
     opacity: 1;
 }
-
-
-
-
-
-
 
 .know-more-container {
     margin-top: 1.5rem;
@@ -443,7 +447,7 @@ body {
     line-height: 1.6;
 }
 .ai-details-content h3 {
-    color: var(--accent-silver);
+    color: var(--accent-cyan);
     margin-top: 1rem;
     border-top: 1px solid var(--border-color);
     padding-top: 1rem;
@@ -465,7 +469,6 @@ body {
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
-
 
 .loader-container {
     display: flex;
@@ -489,19 +492,6 @@ body {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-y
 .favorite-omnitrix {
     position: absolute;
     top: 0.75rem;
@@ -562,7 +552,11 @@ y
 .toast.show {
     bottom: 30px; 
 }
-
+.toast.error {
+    color: #ff4d4d;
+    border-color: #ff4d4d;
+    box-shadow: 0 0 20px rgba(255, 77, 77, 0.6);
+}
 
 .favorites-grid {
     display: grid;
@@ -585,8 +579,6 @@ y
     object-fit: contain;
     margin-bottom: 8px;
 }
-
-
 
 .remove-from-omnitrix-btn {
     font-family: 'Orbitron', sans-serif;

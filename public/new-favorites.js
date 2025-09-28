@@ -26,6 +26,7 @@ const showToast = (message, isError = false) => {
 const alienModalController = {
     modal: document.getElementById('alien-detail-modal'),
     init() {
+        if (!this.modal) return;
         this.modal.querySelector('.close-button').addEventListener('click', () => this.hide());
         this.modal.addEventListener('click', e => e.target === this.modal && this.hide());
     },
@@ -84,9 +85,14 @@ const alienModalController = {
             knowMoreBtn.style.display = 'none';
             try {
                 const response = await fetch(`/api/ai/details/alien/${encodeURIComponent(item.name)}`);
-                aiContentDiv.innerHTML = await response.text();
+                 if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to fetch AI details');
+                }
+                const htmlContent = await response.text();
+                aiContentDiv.innerHTML = htmlContent;
             } catch (err) {
-                aiContentDiv.innerHTML = '<p>Could not load additional details at this time.</p>';
+                aiContentDiv.innerHTML = `<p style="color: #ff4d4d;">Error: ${err.message}</p>`;
                 console.error(err);
             }
         };
@@ -106,23 +112,60 @@ const alienModalController = {
 };
 
 const characterModalController = {
-     modal: document.getElementById('character-detail-modal'),
+    modal: document.getElementById('character-detail-modal'),
     init() {
+        if (!this.modal) return;
         this.modal.querySelector('.close-button').addEventListener('click', () => this.hide());
         this.modal.addEventListener('click', e => e.target === this.modal && this.hide());
+
+        const tabNav = this.modal.querySelector('.tab-nav');
+        if (tabNav) {
+            tabNav.addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON') {
+                    const tabPanes = this.modal.querySelectorAll('.tab-pane');
+                    tabNav.querySelector('.active')?.classList.remove('active');
+                    e.target.classList.add('active');
+                    tabPanes.forEach(pane => pane.classList.remove('active'));
+                    this.modal.querySelector(`#${e.target.dataset.tab}`).classList.add('active');
+                }
+            });
+        }
     },
     show(item) {
+        // Populate the data
         this.modal.querySelector('.detail-card').classList.remove('ai-view');
         this.modal.querySelector('#modal-char-image').src = item.image || 'images/placeholder.png';
         this.modal.querySelector('#modal-char-name').textContent = item.name.toUpperCase();
         this.modal.querySelector('#modal-char-species').textContent = item.species || 'Unknown';
         this.modal.querySelector('#tab-personality').textContent = item.personality || 'N/A';
         this.modal.querySelector('#tab-appearance').textContent = item.appearance || 'N/A';
-        this.modal.querySelector('#tab-powers').textContent = item.powersAndAbilities || 'N/A';
         
-        const tabNav = this.modal.querySelector('.tab-nav');
-        tabNav.querySelector('.active')?.classList.remove('active');
-        tabNav.querySelector('button')?.click();
+        const powersTab = this.modal.querySelector('#tab-powers');
+        const abilities = item.powersAndAbilities;
+        if (abilities) {
+            const abilitiesList = abilities.split(/[,.]+/).filter(a => a.trim() !== '');
+            powersTab.innerHTML = `<ul>${abilitiesList.map(a => `<li>${a.trim()}</li>`).join('')}</ul>`;
+        } else {
+            powersTab.textContent = 'N/A';
+        }
+
+        // --- THIS IS THE FIX ---
+        // Force the first tab to be active every time the modal opens
+        const tabButtons = this.modal.querySelectorAll('.tab-btn');
+        const tabPanes = this.modal.querySelectorAll('.tab-pane');
+        
+        // Remove active class from all tabs and panes to reset them
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        tabPanes.forEach(pane => pane.classList.remove('active'));
+
+        // Add active class to the very first button and first pane
+        if (tabButtons.length > 0) {
+            tabButtons[0].classList.add('active');
+        }
+        if (tabPanes.length > 0) {
+            tabPanes[0].classList.add('active');
+        }
+        // --- END OF FIX ---
 
         const knowMoreBtn = this.modal.querySelector('.know-more-btn');
         const backBtn = this.modal.querySelector('.back-button');
@@ -133,9 +176,14 @@ const characterModalController = {
             aiContentDiv.innerHTML = '<div class="loading-spinner"></div>';
             try {
                 const response = await fetch(`/api/ai/details/character/${encodeURIComponent(item.name)}`);
-                aiContentDiv.innerHTML = await response.text();
+                 if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to fetch AI details');
+                }
+                const htmlContent = await response.text();
+                aiContentDiv.innerHTML = htmlContent;
             } catch (err) {
-                aiContentDiv.innerHTML = '<p>Could not load additional details.</p>';
+                aiContentDiv.innerHTML = `<p style="color: #ff4d4d;">Error: ${err.message}</p>`;
             }
         };
 
@@ -151,6 +199,7 @@ const characterModalController = {
 const planetModalController = {
     modal: document.getElementById('planet-detail-modal'),
     init() {
+        if (!this.modal) return;
         this.modal.querySelector('.close-button').addEventListener('click', () => this.hide());
         this.modal.addEventListener('click', e => e.target === this.modal && this.hide());
     },
@@ -172,9 +221,14 @@ const planetModalController = {
             knowMoreBtn.style.display = 'none';
             try {
                 const response = await fetch(`/api/ai/details/planet/${encodeURIComponent(item.name)}`);
-                aiContentDiv.innerHTML = await response.text();
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to fetch AI details');
+                }
+                const htmlContent = await response.text();
+                aiContentDiv.innerHTML = htmlContent;
             } catch (err) {
-                aiContentDiv.innerHTML = '<p>Could not load additional details.</p>';
+                aiContentDiv.innerHTML = `<p style="color: #ff4d4d;">Error: ${err.message}</p>`;
             }
         };
 

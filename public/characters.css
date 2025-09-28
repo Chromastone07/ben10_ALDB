@@ -221,7 +221,11 @@ background-image:
   border-bottom-color: var(--primary-green);
 }
 
-.tab-content { text-align: left; color: var(--text-light); min-height: 100px; }
+.modal-tab-content { 
+    text-align: left; 
+    color: var(--text-light); 
+    min-height: 100px; 
+}
 .tab-pane { display: none; }
 .tab-pane.active { display: block; animation: fadeIn 0.3s ease-in-out; }
 
