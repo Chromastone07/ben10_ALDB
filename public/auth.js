@@ -33,14 +33,19 @@ document.addEventListener('DOMContentLoaded', () => {
             return; 
         }
 
+        
+
         if (token) {
             navContainer.innerHTML = `
                 <a href="index.html" class="nav-link">Aliens</a>
                 <a href="characters.html" class="nav-link">Universe</a>
                 <a href="planets.html" class="nav-link">Planets</a>
-                <a href="new-favorites.html" class="nav-link">My Omnitrix</a>  <!-- Added link to new favorites page -->
-                <a href="#" id="logout-btn" class="nav-link">Logout</a>
+                <a href="new-favorites.html" class="nav-link">My Omnitrix</a>
+                <a href="profile.html" class="nav-link">Profile</a> <a href="#" id="logout-btn" class="nav-link">Logout</a>
             `;
+
+
+
             
             const logoutBtn = document.getElementById('logout-btn');
             if (logoutBtn) {

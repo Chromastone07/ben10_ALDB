@@ -24,6 +24,7 @@ app.use('/api/ai', require('./routes/ai'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/playlists', require('./routes/playlists'));
 app.use('/api/details', require('./routes/details'));
+app.use('/api/profile', require('./routes/profile'));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
