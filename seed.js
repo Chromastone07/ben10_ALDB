@@ -1838,27 +1838,7 @@ const planetData = [
 
 
 
-// const seedDB = async () => {
-//     try {
-//         console.log('Connecting to database...');
-//         await mongoose.connect(process.env.MONGO_URI);
-//         console.log('Database connected. Deleting existing alien data...');
-        
-//         await Alien.deleteMany({});
-//         console.log('Existing data deleted. Inserting new data...');
 
-//         await Alien.insertMany(alienData);
-//         console.log('Database seeded successfully!');
-
-//     } catch (err) {
-//         console.error('Error seeding database:', err);
-//     } finally {
-//         console.log('Closing database connection.');
-//         mongoose.connection.close();
-//     }
-// };
-
-// seedDB();
 
 
 
