@@ -18,4 +18,16 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.get('/search/:term', async (req, res) => {
+    try {
+        const searchTerm = req.params.term;
+        const results = await Planet.find({
+            name: { $regex: searchTerm, $options: 'i' }
+        });
+        res.json({ results });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 module.exports = router;

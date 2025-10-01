@@ -1,0 +1,67 @@
+.episodes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.episode-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    text-align: left;
+    transition: all 0.3s ease-in-out;
+}
+
+.episode-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent-cyan);
+    box-shadow: 0 4px 20px var(--glow-cyan);
+}
+
+.episode-header {
+    margin-bottom: 1rem;
+}
+
+.episode-header h3 {
+    font-size: 1.4rem;
+    color: var(--accent-cyan);
+    margin-bottom: 0.25rem;
+}
+
+.episode-meta {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.episode-synopsis {
+    margin-bottom: 1rem;
+}
+
+.featured-list h4 {
+    color: var(--accent-green);
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.featured-list ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.featured-list li {
+    background-color: var(--bg-navy);
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.8rem;
+}
+/* Add this to the top of episodes.css */
+.main-container h2 {
+    text-align: center;
+}

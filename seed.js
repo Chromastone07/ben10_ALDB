@@ -1,6 +1,11 @@
 require('dotenv').config();
+
 const mongoose = require('mongoose');
 const Alien = require('./models/alien');
+const Character = require('./models/character');
+const Planet = require('./models/planet');
+const Episode = require('./models/episode');
+
 
 const alienData = [
 
@@ -1837,8 +1842,35 @@ const planetData = [
 
 
 
-
-
+const episodeData = [
+    {
+        title: 'And Then There Were 10',
+        series: 'Classic',
+        season: 1,
+        episode: 1,
+        synopsis: 'While on summer vacation with his Grandpa Max and Cousin Gwen, Ben Tennyson discovers an alien watch, the Omnitrix. It attaches itself to his wrist and gives him the ability to transform into different alien life-forms.',
+        aliens: ['Heatblast', 'Wildmutt', 'Diamondhead', 'XLR8', 'Four Arms'],
+        characters: ['Ben Tennyson', 'Gwen Tennyson', 'Max Tennyson', 'Vilgax'],
+    },
+    {
+        title: 'Washington B.C.',
+        series: 'Classic',
+        season: 1,
+        episode: 2,
+        synopsis: 'Ben and his family visit Washington D.C., where Dr. Animo brings ancient creatures back to life. Ben must stop him from creating a dino-sized disaster.',
+        aliens: ['Four Arms', 'Grey Matter', 'Ripjaws', 'Stinkfly'],
+        characters: ['Ben Tennyson', 'Gwen Tennyson', 'Max Tennyson', 'Dr. Animo'],
+    },
+    {
+        title: 'The Krakken',
+        series: 'Classic',
+        season: 1,
+        episode: 3,
+        synopsis: 'The Tennysons encounter a lake monster called the Krakken. Ben, as Ripjaws, discovers it\'s not a monster but a mother protecting her eggs from poachers.',
+        aliens: ['Ripjaws', 'XLR8', 'Four Arms'],
+        characters: ['Ben Tennyson', 'Gwen Tennyson', 'Max Tennyson'],
+    }
+];
 
 
 
@@ -1848,23 +1880,39 @@ const seedDB = async () => {
         await mongoose.connect(process.env.MONGO_URI);
         console.log('Database connected.');
 
-        console.log('Deleting existing alien data...');
+        // Seed Aliens, Characters, and Planets
         await Alien.deleteMany({});
-        console.log('Inserting new alien data...');
         await Alien.insertMany(alienData);
-        console.log('Alien database seeded successfully!');
+        console.log('Alien database seeded.');
 
-        console.log('Deleting existing character data...');
         await Character.deleteMany({});
-        console.log('Inserting new character data...');
         await Character.insertMany(characterData);
-        console.log('Character database seeded successfully!');
-
-        console.log('Deleting existing planet data...');
+        console.log('Character database seeded.');
+        
         await Planet.deleteMany({});
-        console.log('Inserting new planet data...');
         await Planet.insertMany(planetData);
-        console.log('Planet database seeded successfully!');
+        console.log('Planet database seeded.');
+
+        // Seed Episodes
+        console.log('Preparing to seed episodes...');
+        await Episode.deleteMany({});
+        
+        // Get all aliens and characters to map their names to IDs
+        const allAliens = await Alien.find({}, 'name _id');
+        const allCharacters = await Character.find({}, 'name _id');
+
+        const alienMap = new Map(allAliens.map(a => [a.name, a._id]));
+        const characterMap = new Map(allCharacters.map(c => [c.name, c._id]));
+
+        // Process episodes to replace names with ObjectIDs
+        const processedEpisodes = episodeData.map(ep => ({
+            ...ep,
+            aliens: ep.aliens.map(name => alienMap.get(name)).filter(id => id),
+            characters: ep.characters.map(name => characterMap.get(name)).filter(id => id)
+        }));
+
+        await Episode.insertMany(processedEpisodes);
+        console.log('Episode database seeded successfully!');
 
     } catch (err) {
         console.error('Error seeding database:', err);
@@ -1873,6 +1921,9 @@ const seedDB = async () => {
         mongoose.connection.close();
     }
 };
+
+
+
 
 seedDB();
 

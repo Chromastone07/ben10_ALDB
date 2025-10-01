@@ -37,12 +37,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (token) {
             navContainer.innerHTML = `
-                <a href="index.html" class="nav-link">Aliens</a>
-                <a href="characters.html" class="nav-link">Universe</a>
-                <a href="planets.html" class="nav-link">Planets</a>
-                <a href="new-favorites.html" class="nav-link">My Omnitrix</a>
-                <a href="profile.html" class="nav-link">Profile</a> <a href="#" id="logout-btn" class="nav-link">Logout</a>
-            `;
+    <a href="index.html" class="nav-link">Aliens</a>
+    <a href="characters.html" class="nav-link">Universe</a>
+    <a href="planets.html" class="nav-link">Planets</a>
+    <a href="episodes.html" class="nav-link">Episodes</a> 
+    <a href="new-favorites.html" class="nav-link">My Omnitrix</a>
+    <a href="profile.html" class="nav-link">Profile</a> 
+    <a href="#" id="logout-btn" class="nav-link">Logout</a>
+`;
 
 
 
@@ -59,12 +61,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } else {
             navContainer.innerHTML = `
-                <a href="index.html" class="nav-link">Aliens</a>
-                <a href="characters.html" class="nav-link">Universe</a>
-                <a href="planets.html" class="nav-link">Planets</a>
-                <a href="login.html" class="nav-link">Login</a>
-                <a href="register.html" class="nav-link">Register</a>
-            `;
+    <a href="index.html" class="nav-link">Aliens</a>
+    <a href="characters.html" class="nav-link">Universe</a>
+    <a href="planets.html" class="nav-link">Planets</a>
+    <a href="episodes.html" class="nav-link">Episodes</a>
+    <a href="login.html" class="nav-link">Login</a>
+    <a href="register.html" class="nav-link">Register</a>
+`;
         }
     };
 

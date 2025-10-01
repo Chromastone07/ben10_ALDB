@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ben 10: Episode Guide</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="episodes.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <a href="index.html" class="nav-logo">
+                <img src="images/ben10.png" alt="Ben 10 Logo" class="logo-img">
+                Alien Database
+            </a>
+            <div id="main-nav" class="main-nav"></div>
+        </nav>
+    </header>
+
+    <main class="alien-section">
+        <h2>Omnitrix Archives: <span>Episode Logs</span></h2>
+        <div class="search-container">
+            <input type="text" id="search-bar" class="search-bar" placeholder="Search for an episode...">
+        </div>
+        <div class="filter-nav">
+            <button class="filter-btn active" data-series="All">All Series</button>
+            <button class="filter-btn" data-series="Classic">Classic</button>
+            <button class="filter-btn" data-series="Alien Force">Alien Force</button>
+            <button class="filter-btn" data-series="Ultimate Alien">Ultimate Alien</button>
+            <button class="filter-btn" data-series="Omniverse">Omniverse</button>
+            <button class="filter-btn" data-series="Reboot">Reboot</button>
+        </div>
+
+        <div id="episodes-grid" class="episodes-grid">
+            </div>
+
+        <div id="load-more-container" class="load-more-container">
+            <button id="load-more-episodes" class="load-more-btn">Load More</button>
+        </div>
+    </main>
+
+    <div id="toast-notification" class="toast"></div>
+    <script src="auth.js"></script>
+    <script src="episodes.js"></script>
+</body>
+</html>
