@@ -5,9 +5,7 @@ const { check, validationResult } = require('express-validator');
 const auth = require('../middleware/auth');
 const User = require('../models/user');
 
-// @route   GET api/profile/me
-// @desc    Get current user's profile
-// @access  Private
+
 router.get('/me', auth, async (req, res) => {
     try {
         const user = await User.findById(req.user.id).select('-password');
@@ -21,9 +19,6 @@ router.get('/me', auth, async (req, res) => {
     }
 });
 
-// @route   PUT api/profile/update-username
-// @desc    Update username
-// @access  Private
 router.put('/update-username', [
     auth,
     [
@@ -49,9 +44,7 @@ router.put('/update-username', [
     }
 });
 
-// @route   PUT api/profile/change-password
-// @desc    Change user password
-// @access  Private
+
 router.put('/change-password', [
     auth,
     [
@@ -88,9 +81,7 @@ router.put('/change-password', [
     }
 });
 
-// @route   DELETE api/profile/delete-account
-// @desc    Delete user account
-// @access  Private
+
 router.delete('/delete-account', auth, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);

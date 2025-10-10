@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // --- DOM Elements ---
     const usernameDisplay = document.getElementById('username-display');
     const emailDisplay = document.getElementById('email-display');
     const memberSinceDisplay = document.getElementById('member-since-display');
@@ -20,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
         delete: { element: deleteModal, btn: document.getElementById('open-delete-modal-btn'), msg: document.getElementById('delete-message') },
     };
 
-    // --- Toast Notification ---
     const showToast = (message, isError = false) => {
         const toast = document.getElementById('toast-notification');
         if (!toast) return;
@@ -29,7 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => toast.classList.remove('show'), 3000);
     };
 
-    // --- Modal Controls ---
     const openModal = (modalKey) => modals[modalKey].element.classList.add('active');
     const closeModal = (modalKey) => modals[modalKey].element.classList.remove('active');
 
@@ -37,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
         element.querySelector('.close-button').addEventListener('click', () => element.classList.remove('active'));
     });
 
-    // --- Fetch and Display Profile Data ---
     const fetchProfile = async () => {
         try {
             const res = await fetch('/api/profile/me', { headers: { 'x-auth-token': token } });
@@ -52,14 +48,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- Event Listeners ---
 
-    // 1. Open Modals
     modals.username.btn.addEventListener('click', () => openModal('username'));
     modals.password.btn.addEventListener('click', () => openModal('password'));
     modals.delete.btn.addEventListener('click', () => openModal('delete'));
 
-    // 2. Update Username
     const updateUsernameBtn = document.getElementById('update-username-btn');
     updateUsernameBtn.addEventListener('click', async () => {
         const newUsername = document.getElementById('new-username').value.trim();
@@ -82,7 +75,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 3. Change Password
     const changePasswordBtn = document.getElementById('change-password-btn');
     changePasswordBtn.addEventListener('click', async () => {
         const currentPassword = document.getElementById('current-password').value;
@@ -112,7 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 4. Delete Account
     const deleteConfirmInput = document.getElementById('delete-confirm');
     const deleteAccountBtn = document.getElementById('delete-account-btn');
     
@@ -138,6 +129,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Initial load
     fetchProfile();
 });

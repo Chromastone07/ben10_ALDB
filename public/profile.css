@@ -126,7 +126,6 @@
     color: var(--text-primary);
 }
 
-/* Modal Styles */
 .profile-modal .modal-content {
     max-width: 450px;
     padding: 2rem;

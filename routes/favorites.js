@@ -3,9 +3,7 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const User = require('../models/user');
 
-// @route   GET api/favorites/ids
-// @desc    Get all favorite item IDs from the user's active playlists
-// @access  Private
+
 router.get('/ids', auth, async (req, res) => {
     try {
         const user = await User.findById(req.user.id).select('alienPlaylists activeAlienPlaylist characterPlaylists activeCharacterPlaylist planetPlaylists activePlanetPlaylist');

@@ -10,12 +10,10 @@ const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     
-    // Deprecated - we will phase these out
     favoriteAliens: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Alien' }],
     favoriteCharacters: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Character' }],
     favoritePlanets: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Planet' }],
 
-    // New Playlist Structure
     alienPlaylists: [playlistSchema],
     characterPlaylists: [playlistSchema],
     planetPlaylists: [playlistSchema],

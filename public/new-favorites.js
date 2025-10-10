@@ -132,7 +132,6 @@ const characterModalController = {
         }
     },
     show(item) {
-        // Populate the data
         this.modal.querySelector('.detail-card').classList.remove('ai-view');
         this.modal.querySelector('#modal-char-image').src = item.image || 'images/placeholder.png';
         this.modal.querySelector('#modal-char-name').textContent = item.name.toUpperCase();
@@ -149,23 +148,18 @@ const characterModalController = {
             powersTab.textContent = 'N/A';
         }
 
-        // --- THIS IS THE FIX ---
-        // Force the first tab to be active every time the modal opens
         const tabButtons = this.modal.querySelectorAll('.tab-btn');
         const tabPanes = this.modal.querySelectorAll('.tab-pane');
         
-        // Remove active class from all tabs and panes to reset them
         tabButtons.forEach(btn => btn.classList.remove('active'));
         tabPanes.forEach(pane => pane.classList.remove('active'));
 
-        // Add active class to the very first button and first pane
         if (tabButtons.length > 0) {
             tabButtons[0].classList.add('active');
         }
         if (tabPanes.length > 0) {
             tabPanes[0].classList.add('active');
         }
-        // --- END OF FIX ---
 
         const knowMoreBtn = this.modal.querySelector('.know-more-btn');
         const backBtn = this.modal.querySelector('.back-button');

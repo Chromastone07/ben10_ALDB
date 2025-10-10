@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const Episode = require('../models/episode');
 
-// GET all episodes with pagination and filtering by series
 router.get('/', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
@@ -33,7 +32,6 @@ router.get('/', async (req, res) => {
     }
 });
 
-// GET episodes by search term
 router.get('/search/:term', async (req, res) => {
     try {
         const searchTerm = req.params.term;

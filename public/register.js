@@ -1,8 +1,4 @@
 
-
-
-
-
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('register-form');
     const messageDiv = document.getElementById('message');

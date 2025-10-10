@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Get token from the URL
         const urlParams = new URLSearchParams(window.location.search);
         const token = urlParams.get('token');
 
@@ -34,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await res.json();
 
             if (!res.ok) {
-                // Try to parse errors if they are in an array format from the validator
                 const errorMsg = data.errors ? data.errors[0].msg : (data.msg || 'Something went wrong');
                 throw new Error(errorMsg);
             }
