@@ -1,81 +1,59 @@
+
 const express = require('express');
 const router = express.Router();
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { OpenAI } = require('openai'); 
 
-const genAI = process.env.GEMINI_API_KEY
-  ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
-  : null;
-
-const handleAiError = (res, err, context) => {
-  console.error(`AI Error in ${context}:`, err.message);
-  let statusCode = 500;
-  let message = 'AI service error. Please try again later.';
-
-  if (err.status === 429) {
-    statusCode = 429;
-    message = 'AI quota exceeded. Try again later.';
-  } else if (err.status === 404) {
-    statusCode = 503;
-    message = 'AI model not found or temporarily unavailable.';
-  }
-
-  res.status(statusCode).json({ error: message });
-};
-
-router.get('/details/:type/:name', async (req, res) => {
-  const { type, name } = req.params;
-  try {
-    if (!genAI) throw new Error('Gemini AI not configured.');
-
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
-    const prompt = `
-      You are an expert on the Ben 10 universe.
-      Provide a detailed summary for the Ben 10 ${type} named "${name}".
-      Include:
-      - Appearance (<h3>Appearance</h3>)
-      - Personality (<h3>Personality</h3>)
-      - Powers & Abilities (<h3>Powers and Abilities</h3>)
-      Format the output in pure HTML using <ul><li> for lists.
-      Do NOT include markdown fences or <html>/<body> tags.
-    `;
-
-    const result = await model.generateContent(prompt);
-    const htmlContent = result.response.text();
-    res.send(htmlContent);
-
-  } catch (err) {
-    handleAiError(res, err, `GET /details/${req.params.type}/${req.params.name}`);
-  }
-});
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 router.post('/', async (req, res) => {
-  const userQuery = req.body.query;
-  if (!userQuery) {
-    return res.status(400).json({ error: 'Query is required.' });
-  }
+    const userQuery = req.body.query;
+    if (!userQuery) {
+        return res.status(400).json({ error: 'Query is required.' });
+    }
 
-  const azmuthPrompt = `
-    You are Azmuth, the creator of the Omnitrix, a leading expert on the Ben 10 universe.
-    You are brilliant, slightly arrogant, and speak formally.
-    Respond ONLY as Azmuth would — direct dialogue only, no descriptions or actions.
-    USER QUESTION: "${userQuery}"
-    AZMUTH:
-  `;
+ 
 
-  try {
-    if (!genAI) throw new Error('Gemini AI not configured.');
-    console.log(" Using Google Gemini...");
+const azmuthPrompt = `You are Azmuth, the creator of the Omnitrix, a leading expert on the Ben 10 universe. You are brilliant, slightly arrogant, and speak formally.
+Your response must ONLY be the direct dialogue from Azmuth. Do not include any descriptions of his actions, gestures, or tone of voice in parentheses or asterisks.
+USER QUESTION: "${userQuery}"
+AZMUTH:`;
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
-    const result = await model.generateContent(azmuthPrompt);
-    const text = result.response.text();
 
-    console.log(" Gemini success");
-    res.json({ answer: text });
+    try {
+        console.log("Attempting to use Google Gemini...");
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const result = await model.generateContent(azmuthPrompt);
+        const response = await result.response;
+        const text = response.text();
+        
+        console.log("Success with Google Gemini.");
+        return res.json({ answer: text });
 
-  } catch (err) {
-    handleAiError(res, err, "POST /chat");
-  }
+    } catch (err) {
+       
+        if (err.status === 429) {
+            console.log("Google Gemini quota exceeded. Falling back to OpenAI...");
+            try {
+                const completion = await openai.chat.completions.create({
+                    model: "gpt-3.5-turbo",
+                    messages: [{ role: "user", content: azmuthPrompt }],
+                });
+                const text = completion.choices[0].message.content;
+
+                console.log("Success with OpenAI fallback.");
+                return res.json({ answer: text });
+
+            } catch (openAIError) {
+                console.error("OpenAI Fallback Error:", openAIError);
+                return res.status(500).json({ error: "Both AI providers failed." });
+            }
+        }
+        
+        console.error("AI Chat Error (Google):", err);
+        return res.status(500).json({ error: "Failed to get a response from the primary AI." });
+    }
 });
 
 module.exports = router;
