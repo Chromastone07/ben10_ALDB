@@ -1,6 +1,3 @@
-
-
-
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
@@ -9,8 +6,6 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const { check, validationResult } = require('express-validator');
 const User = require('../models/user');
-
-
 
 
 router.post('/register', [
@@ -44,10 +39,6 @@ router.post('/register', [
         res.status(500).send('Server Error');
     }
 });
-
-
-
-
 
 router.post('/login', [
     check('email', 'Please include a valid email').isEmail(),
@@ -89,7 +80,6 @@ router.post('/login', [
 });
 
 
-
 router.post('/forgot-password', [
     check('email', 'Please include a valid email').isEmail()
 ], async (req, res) => {
@@ -103,23 +93,22 @@ router.post('/forgot-password', [
         const user = await User.findOne({ email });
 
         if (!user) {
-           
             return res.json({ msg: 'If an account with that email exists, a password reset link has been sent.' });
         }
 
         const resetToken = crypto.randomBytes(20).toString('hex');
 
         user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
-        user.resetPasswordExpires = Date.now() + 3600000; // 1 hour from now
+        user.resetPasswordExpires = Date.now() + 3600000;
 
         await user.save();
 
-        const resetUrl = `http://${req.headers.host}/reset-password.html?token=${resetToken}`;
+        const resetUrl = `${process.env.CLIENT_URL}/reset-password.html?token=${resetToken}`;
 
         const transporter = nodemailer.createTransport({
             host: process.env.EMAIL_HOST,
             port: process.env.EMAIL_PORT,
-            secure: false, 
+            secure: process.env.EMAIL_PORT == 465, 
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS,
@@ -128,7 +117,7 @@ router.post('/forgot-password', [
 
         const mailOptions = {
             to: user.email,
-            from: process.env.EMAIL_USER,
+            from: `"Ben 10 Alien DB" <${process.env.EMAIL_USER}>`,
             subject: 'Ben 10 Alien Database Password Reset',
             text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
                    Please click on the following link, or paste this into your browser to complete the process:\n\n
@@ -141,10 +130,11 @@ router.post('/forgot-password', [
         res.json({ msg: 'If an account with that email exists, a password reset link has been sent.' });
 
     } catch (err) {
-        console.error(err.message);
+        console.error("FORGOT PASSWORD ERROR:", err.message);
         res.status(500).send('Server Error');
     }
 });
+
 
 router.post('/reset-password/:token', [
     check('password', 'Please enter a password with 6 or more characters').isLength({ min: 6 })
