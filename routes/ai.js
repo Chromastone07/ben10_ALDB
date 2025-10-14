@@ -1,15 +1,3 @@
-
-
-
-// const express = require('express');
-// const router = express.Router();
-// const { GoogleGenerativeAI } = require('@google/generative-ai');
-// const { OpenAI } = require('openai');
-
-// const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-// const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-
 const express = require('express');
 const router = express.Router();
 const { GoogleGenerativeAI } = require('@google/generative-ai');
@@ -17,7 +5,6 @@ const { OpenAI } = require('openai');
 
 const genAI = process.env.GEMINI_API_KEY ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) : null;
 const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
-
 
 const handleAiError = (res, err, context) => {
     console.error(`AI Error in ${context}:`, err);
@@ -28,7 +15,7 @@ const handleAiError = (res, err, context) => {
         statusCode = 429;
         message = 'AI service quota exceeded. Please try again later.';
     } else if (err.message.includes('fetch')) {
-        statusCode = 503; 
+        statusCode = 503;
         message = 'Could not connect to the AI service. Please check the connection.';
     }
 
@@ -39,7 +26,10 @@ const handleAiError = (res, err, context) => {
 router.get('/details/:type/:name', async (req, res) => {
     try {
         const { type, name } = req.params;
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" }); 
+        if (!genAI) {
+            throw new Error('Gemini AI is not configured.');
+        }
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const prompt = `
             You are an expert on the Ben 10 universe.
@@ -73,8 +63,11 @@ router.post('/', async (req, res) => {
     AZMUTH:`;
 
     try {
+        if (!genAI) {
+            throw new Error('Gemini AI is not configured.');
+        }
         console.log("Attempting to use Google Gemini...");
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" }); 
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         const result = await model.generateContent(azmuthPrompt);
         const response = await result.response;
         const text = response.text();
@@ -83,23 +76,23 @@ router.post('/', async (req, res) => {
         return res.json({ answer: text });
 
     } catch (err) {
-        if (err.status === 429) {
-            console.log("Google Gemini quota exceeded. Falling back to OpenAI...");
-            try {
-                const completion = await openai.chat.completions.create({
-                    model: "gpt-3.5-turbo",
-                    messages: [{ role: "user", content: azmuthPrompt }],
-                });
-                const text = completion.choices[0].message.content;
-
-                console.log("Success with OpenAI fallback.");
-                return res.json({ answer: text });
-
-            } catch (openAIError) {
-                return handleAiError(res, openAIError, "OpenAI Fallback");
+        console.warn("Google Gemini failed. Falling back to OpenAI...", err.message);
+        try {
+            if (!openai) {
+                throw new Error('OpenAI is not configured.');
             }
+            const completion = await openai.chat.completions.create({
+                model: "gpt-3.5-turbo",
+                messages: [{ role: "user", content: azmuthPrompt }],
+            });
+            const text = completion.choices[0].message.content;
+
+            console.log("Success with OpenAI fallback.");
+            return res.json({ answer: text });
+
+        } catch (openAIError) {
+            return handleAiError(res, openAIError, "OpenAI Fallback");
         }
-        return handleAiError(res, err, "Google Gemini Chat");
     }
 });
 
