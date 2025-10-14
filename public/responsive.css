@@ -1,0 +1,68 @@
+
+
+@media (max-width: 768px) {
+    .alien-section, .main-container, .profile-container, .favorites-main-container {
+        padding: 2rem 1rem;
+    }
+
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.8rem; }
+    
+    .navbar {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .main-nav {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem 1rem;
+    }
+
+    .alien-container, .character-grid, .episodes-grid, .items-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 1rem;
+    }
+
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-content, .detail-card {
+        padding: 1.5rem 1rem;
+        width: 95%;
+        max-height: 90vh;
+    }
+
+    .modal-body {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .detail-card-body .tab-nav {
+        gap: 0.5rem;
+    }
+    
+    .detail-card-body .tab-btn {
+        padding: 0.4rem;
+        font-size: 0.8rem;
+    }
+
+    .animation-pane { height: 220px; }
+    #anim-omnitrix, #anim-alien-img { max-width: 200px; }
+
+    .details-pane, .main-details, .ai-details-view {
+        padding-right: 0.5rem;
+        max-height: 40vh;
+    }
+
+    .auth-form {
+        padding: 2rem;
+        width: 90%;
+    }
+
+    #chat-widget { bottom: 1rem; right: 1rem; }
+    #chat-window { width: 95vw; height: 75vh; bottom: 70px; }
+}
