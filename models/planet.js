@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const planetSchema = new mongoose.Schema({
-    name: { type: String, required: true },
+    name: { type: String, required: true, index: true },
     nativeSpecies: [{ type: String }],
     description: { type: String },
     habitat: { type: String },

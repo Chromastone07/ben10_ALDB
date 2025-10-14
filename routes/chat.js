@@ -1,18 +1,32 @@
 
+// const express = require('express');
+// const router = express.Router();
+// const { GoogleGenerativeAI } = require('@google/generative-ai');
+// const { OpenAI } = require('openai'); 
+
+// const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+// router.post('/', async (req, res) => {
+//     const userQuery = req.body.query;
+//     if (!userQuery) {
+//         return res.status(400).json({ error: 'Query is required.' });
+//     }
+
+
 const express = require('express');
 const router = express.Router();
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-const { OpenAI } = require('openai'); 
+const { OpenAI } = require('openai');
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const genAI = process.env.GEMINI_API_KEY ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) : null;
+const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
+
 
 router.post('/', async (req, res) => {
-    const userQuery = req.body.query;
-    if (!userQuery) {
-        return res.status(400).json({ error: 'Query is required.' });
+    if (!genAI && !openai) {
+        return res.status(503).json({ error: 'AI services are currently unavailable.' });
     }
-
  
 
 const azmuthPrompt = `You are Azmuth, the creator of the Omnitrix, a leading expert on the Ben 10 universe. You are brilliant, slightly arrogant, and speak formally.

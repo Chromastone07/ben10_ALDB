@@ -1,13 +1,23 @@
 
 
 
+// const express = require('express');
+// const router = express.Router();
+// const { GoogleGenerativeAI } = require('@google/generative-ai');
+// const { OpenAI } = require('openai');
+
+// const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+
 const express = require('express');
 const router = express.Router();
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { OpenAI } = require('openai');
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const genAI = process.env.GEMINI_API_KEY ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) : null;
+const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
+
 
 const handleAiError = (res, err, context) => {
     console.error(`AI Error in ${context}:`, err);
