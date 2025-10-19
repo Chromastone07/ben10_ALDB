@@ -301,7 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isTtsEnabled) {
             speechSynthesis.cancel();
         } else {
-            if (voices.length > 0) speak("Voice diagnostics online.");
+            if (voices.length > 0) speak("you better be worth my time.");
         }
     });
 
