@@ -1,76 +1,121 @@
-
-
 document.addEventListener('DOMContentLoaded', () => {
+    // --- DOM Elements ---
     const planetContainer = document.getElementById('planet-container');
     const searchBar = document.getElementById('search-bar');
-    const loadMoreButton = document.getElementById('load-more-planets');
     const modal = document.getElementById('planet-modal');
     const closeButton = modal.querySelector('.close-button');
     const toastNotification = document.getElementById('toast-notification'); 
+    
+    const sentinel = document.getElementById('scroll-sentinel');
+    const sentinelLoader = sentinel.querySelector('.loader');
+    const suggestionsBox = document.getElementById('suggestions-box');
+    
+    const playlistSelectModal = document.getElementById('playlist-select-modal');
+    const closePlaylistSelect = document.getElementById('close-playlist-select');
+    const playlistListContainer = document.getElementById('playlist-list-container');
+    const playlistLoader = document.getElementById('playlist-loader');
+
+    // --- State Variables ---
     let currentPage = 1;
     let searchTimeout;
-    let activePlanetPlaylistId = null;
+    let toastTimeout;
+    let isLoading = false;
+    let pendingItemToAdd = null;
 
-    const getActivePlaylistId = async () => {
-        const token = localStorage.getItem('token');
-        if (!token) return null;
-        try {
-            const res = await fetch('/api/playlists/planets', { headers: { 'x-auth-token': token } });
-            if (res.ok) {
-                const data = await res.json();
-                return data.activePlaylistId;
-            }
-            return null;
-        } catch (err) {
-            console.error('Could not fetch active planet playlist ID', err);
-            return null;
-        }
-    };
-
+    // --- Helper: Toast ---
     const showToast = (message, isError = false) => {
         if (!toastNotification) return;
         toastNotification.textContent = message;
         toastNotification.className = `toast show ${isError ? 'error' : ''}`;
-        setTimeout(() => toastNotification.classList.remove('show'), 3000); 
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => toastNotification.classList.remove('show'), 3000); 
     };
 
-    const addItemToActivePlaylist = async (planetId, planetName) => {
+    // --- Feature: Playlist Selection ---
+    const fetchUserPlaylists = async () => {
         const token = localStorage.getItem('token');
-        if (!token) return showToast('Please log in to add planets.');
-        
-        if (!activePlanetPlaylistId) {
-            return showToast('Please select an active planet playlist in "My Omnitrix".', true);
+        if (!token) return [];
+        try {
+            const res = await fetch('/api/playlists/planets', { headers: { 'x-auth-token': token } });
+            if (res.ok) {
+                const data = await res.json();
+                return data.playlists || [];
+            }
+            return [];
+        } catch (err) { return []; }
+    };
+
+    const openPlaylistSelectionModal = async (planetId, planetName) => {
+        const token = localStorage.getItem('token');
+        if (!token) return showToast('Please log in to add planets.', true);
+
+        pendingItemToAdd = { id: planetId, name: planetName };
+        playlistSelectModal.classList.add('active');
+        playlistLoader.style.display = 'block';
+        playlistListContainer.innerHTML = '';
+
+        const playlists = await fetchUserPlaylists();
+        playlistLoader.style.display = 'none';
+
+        if (playlists.length === 0) {
+            playlistListContainer.innerHTML = '<p>No planet playlists found. Create one in Profile.</p>';
+            return;
         }
+
+        playlists.forEach(pl => {
+            const btn = document.createElement('button');
+            btn.className = 'filter-btn'; // Reuse style
+            btn.style.width = '100%';
+            btn.style.marginBottom = '10px';
+            btn.textContent = pl.name;
+            btn.onclick = () => confirmAddToPlaylist(pl._id, pl.name);
+            playlistListContainer.appendChild(btn);
+        });
+    };
+
+    const confirmAddToPlaylist = async (playlistId, playlistName) => {
+        const token = localStorage.getItem('token');
+        if (!pendingItemToAdd) return;
 
         try {
-            const res = await fetch(`/api/playlists/planets/${activePlanetPlaylistId}`, {
+            const res = await fetch(`/api/playlists/planets/${playlistId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
-                body: JSON.stringify({ itemId: planetId, action: 'add' })
+                body: JSON.stringify({ itemId: pendingItemToAdd.id, action: 'add' })
             });
             if (res.ok) {
-                showToast(`${planetName} added to your active playlist!`);
+                showToast(`${pendingItemToAdd.name} added to ${playlistName}!`);
+                playlistSelectModal.classList.remove('active');
             } else {
-                 const errData = await res.json();
-                throw new Error(errData.msg || 'Failed to add planet to playlist');
+                 const err = await res.json();
+                showToast(err.msg || 'Failed to add planet', true);
             }
         } catch (err) {
-            console.error('Failed to add to playlist', err);
-            showToast(err.message, true);
+            showToast('Network error', true);
         }
     };
 
+    closePlaylistSelect.addEventListener('click', () => playlistSelectModal.classList.remove('active'));
+
+    // --- Core: Fetch & Display ---
     const fetchPlanets = async (page, shouldAppend = false) => {
+        if (isLoading) return;
+        isLoading = true;
+
+        if (!shouldAppend) {
+            planetContainer.innerHTML = '';
+            sentinelLoader.style.display = 'none';
+        } else {
+            sentinelLoader.style.display = 'block';
+        }
+
         try {
             const response = await fetch(`/api/planets?page=${page}&limit=12`);
             const data = await response.json();
 
-            if (!shouldAppend) planetContainer.innerHTML = '';
-
             data.results.forEach(planet => {
                 const planetCard = document.createElement('div');
                 planetCard.className = 'alien-card'; 
-                planetCard.dataset.planetId = planet._id;
                 planetCard.innerHTML = `
                     <div class="alien-image-wrapper">
                         <img class="alien-image" src="${planet.image || 'images/placeholder.png'}" alt="${planet.name}">
@@ -81,43 +126,69 @@ document.addEventListener('DOMContentLoaded', () => {
                 planetContainer.appendChild(planetCard);
             });
 
-            loadMoreButton.style.display = data.hasNextPage ? 'block' : 'none';
+            if (data.hasNextPage) {
+                observer.observe(sentinel);
+            } else {
+                observer.unobserve(sentinel);
+                sentinelLoader.style.display = 'none';
+            }
         } catch (error) {
             console.error("Could not fetch planets:", error);
-            showToast('Could not load planets.', true); 
+        } finally {
+            isLoading = false;
+            if(shouldAppend) sentinelLoader.style.display = 'none';
         }
     };
 
-    const fetchSearchResults = async (term) => {
-        planetContainer.innerHTML = `<div class="loader-container"><div class="loader"></div></div>`;
-        loadMoreButton.style.display = 'none';
+    const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && !isLoading) {
+            currentPage++;
+            fetchPlanets(currentPage, true);
+        }
+    }, { rootMargin: '100px' });
 
-        if (!term) {
-            fetchPlanets(1, false);
+    // --- Core: Autocomplete ---
+    const showSuggestions = (results) => {
+        suggestionsBox.innerHTML = '';
+        if (results.length === 0) {
+            suggestionsBox.style.display = 'none';
             return;
         }
-        try {
-            const response = await fetch(`/api/planets/search/${term}`);
-            const data = await response.json();
-            planetContainer.innerHTML = '';
-            data.results.forEach(planet => {
-                const planetCard = document.createElement('div');
-                planetCard.className = 'alien-card';
-                planetCard.dataset.planetId = planet._id;
-                planetCard.innerHTML = `
-                    <div class="alien-image-wrapper">
-                        <img class="alien-image" src="${planet.image || 'images/placeholder.png'}" alt="${planet.name}">
-                    </div>
-                    <div class="alien-info"><h3>${planet.name}</h3></div>
-                `;
-                planetCard.addEventListener('click', () => showPlanetDetails(planet));
-                planetContainer.appendChild(planetCard);
+        results.forEach(planet => {
+            const div = document.createElement('div');
+            div.className = 'suggestion-item';
+            div.innerHTML = `<img src="${planet.image || 'images/placeholder.png'}"><span>${planet.name}</span>`;
+            div.addEventListener('click', () => {
+                showPlanetDetails(planet);
+                suggestionsBox.style.display = 'none';
+                searchBar.value = '';
             });
-        } catch (error) {
-            console.error("Could not fetch search results:", error);
-        }
+            suggestionsBox.appendChild(div);
+        });
+        suggestionsBox.style.display = 'block';
     };
 
+    searchBar.addEventListener('input', (e) => {
+        const term = e.target.value.trim();
+        clearTimeout(searchTimeout);
+        if (term.length < 2) {
+            suggestionsBox.style.display = 'none';
+            return;
+        }
+        searchTimeout = setTimeout(async () => {
+            try {
+                const response = await fetch(`/api/planets/search/${encodeURIComponent(term)}`);
+                const data = await response.json();
+                showSuggestions(data.results || []);
+            } catch (error) { console.error(error); }
+        }, 300);
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.search-container')) suggestionsBox.style.display = 'none';
+    });
+
+    // --- Modal Logic ---
     const showPlanetDetails = (planet) => {
         document.getElementById('modal-planet-img').src = planet.image || 'images/placeholder.png';
         document.getElementById('modal-planet-name').innerText = planet.name;
@@ -126,33 +197,24 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('modal-planet-description').innerText = planet.description || 'No data.';
         document.getElementById('modal-planet-habitat').innerText = planet.habitat || 'No data.';
 
+        const addToOmnitrixBtn = document.getElementById('modal-add-btn'); 
+        if (addToOmnitrixBtn) {
+            addToOmnitrixBtn.textContent = 'Add to Playlist';
+            addToOmnitrixBtn.onclick = () => openPlaylistSelectionModal(planet._id, planet.name);
+        }
+
         const knowMoreBtn = modal.querySelector('.know-more-btn');
         const aiContentDiv = modal.querySelector('.ai-details-content');
-        const addToOmnitrixBtn = modal.querySelector('.add-to-omnitrix-btn'); 
-
-        if (addToOmnitrixBtn) {
-            addToOmnitrixBtn.textContent = 'Add to Active Playlist';
-            addToOmnitrixBtn.onclick = () => {
-                addItemToActivePlaylist(planet._id, planet.name);
-            };
-        }
 
         const fetchAiDetails = async () => {
             aiContentDiv.innerHTML = '<div class="loading-spinner"></div>';
             knowMoreBtn.style.display = 'none';
-
             try {
                 const response = await fetch(`/api/ai/details/planet/${encodeURIComponent(planet.name)}`);
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to fetch AI details');
-                }
                 const htmlContent = await response.text();
                 aiContentDiv.innerHTML = htmlContent;
             } catch (err) {
-                aiContentDiv.innerHTML = `<p style="color: #ff4d4d;">Error: ${err.message}</p>`;
-                console.error(err);
-                showToast('Error fetching AI details.', true); 
+                aiContentDiv.innerHTML = `<p style="color: #ff4d4d;">Error.</p>`;
             }
         };
 
@@ -163,29 +225,9 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.classList.add('active');
     };
 
-    const closeModal = () => {
-        modal.classList.remove('active');
-    };
-
+    const closeModal = () => modal.classList.remove('active');
     closeButton.addEventListener('click', closeModal);
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
-    });
-    
-    searchBar.addEventListener('input', (e) => {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-            fetchSearchResults(e.target.value.trim());
-        }, 300);
-    });
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
 
-    loadMoreButton.addEventListener('click', () => {
-        currentPage++;
-        fetchPlanets(currentPage, true);
-    });
-    
-    getActivePlaylistId().then(id => {
-        activePlanetPlaylistId = id;
-    });
     fetchPlanets(currentPage);
 });

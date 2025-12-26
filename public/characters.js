@@ -1,103 +1,142 @@
-
-
 document.addEventListener('DOMContentLoaded', () => {
+    // --- DOM Elements ---
     const grid = document.getElementById('character-grid');
     const searchBar = document.getElementById('search-bar');
-    const loadMoreButton = document.getElementById('load-more-characters');
     const filterNav = document.querySelector('.filter-nav');
     const modal = document.getElementById('modal');
     const closeButton = modal.querySelector('.close-button');
     const toast = document.getElementById('toast-notification');
+    
+    // New Elements
+    const sentinel = document.getElementById('scroll-sentinel');
+    const sentinelLoader = sentinel.querySelector('.loader');
+    const suggestionsBox = document.getElementById('suggestions-box');
+    const playlistSelectModal = document.getElementById('playlist-select-modal');
+    const closePlaylistSelect = document.getElementById('close-playlist-select');
+    const playlistListContainer = document.getElementById('playlist-list-container');
+    const playlistLoader = document.getElementById('playlist-loader');
 
+    // --- State Variables ---
     let currentPage = 1;
     let currentCategory = 'All';
     let searchTimeout;
-    let activeCharacterPlaylistId = null;
+    let toastTimeout;
+    let isLoading = false;
+    let pendingItemToAdd = null;
 
-    const getActivePlaylistId = async () => {
-        const token = localStorage.getItem('token');
-        if (!token) return null;
-        try {
-            const res = await fetch('/api/playlists/characters', { headers: { 'x-auth-token': token } });
-            if (res.ok) {
-                const data = await res.json();
-                return data.activePlaylistId;
-            }
-            return null;
-        } catch (err) {
-            console.error('Could not fetch active character playlist ID', err);
-            return null;
-        }
-    };
-    
+    // --- Helper: Toast ---
     const showToast = (message, isError = false) => {
         if (!toast) return;
         toast.textContent = message;
         toast.className = `toast show ${isError ? 'error' : ''}`;
-        setTimeout(() => toast.classList.remove('show'), 3000);
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => toast.classList.remove('show'), 3000);
     };
-    
-    const addItemToActivePlaylist = async (characterId, characterName) => {
+
+    // --- Feature: Playlist Selection (My Omnitrix) ---
+    const fetchUserPlaylists = async () => {
         const token = localStorage.getItem('token');
-        if (!token) return showToast('Please log in to add characters.');
-        
-        if (!activeCharacterPlaylistId) {
-            return showToast('Please select an active character playlist in "My Omnitrix".', true);
+        if (!token) return [];
+        try {
+            const res = await fetch('/api/playlists/characters', { headers: { 'x-auth-token': token } });
+            if (res.ok) {
+                const data = await res.json();
+                return data.playlists || [];
+            }
+            return [];
+        } catch (err) {
+            console.error('Could not fetch playlists', err);
+            return [];
         }
+    };
+
+    const openPlaylistSelectionModal = async (charId, charName) => {
+        const token = localStorage.getItem('token');
+        if (!token) return showToast('Please log in to use the Omnitrix.', true);
+
+        pendingItemToAdd = { id: charId, name: charName };
+        playlistSelectModal.classList.add('active');
+        playlistLoader.style.display = 'block';
+        playlistListContainer.innerHTML = '';
+
+        const playlists = await fetchUserPlaylists();
+        playlistLoader.style.display = 'none';
+
+        if (playlists.length === 0) {
+            playlistListContainer.innerHTML = '<p>No character playlists found. Create one in Profile.</p>';
+            return;
+        }
+
+        playlists.forEach(pl => {
+            const btn = document.createElement('button');
+            btn.className = 'filter-btn'; // Reuse style
+            btn.style.width = '100%';
+            btn.style.marginBottom = '10px';
+            btn.textContent = pl.name;
+            btn.onclick = () => confirmAddToPlaylist(pl._id, pl.name);
+            playlistListContainer.appendChild(btn);
+        });
+    };
+
+    const confirmAddToPlaylist = async (playlistId, playlistName) => {
+        const token = localStorage.getItem('token');
+        if (!pendingItemToAdd) return;
 
         try {
-            const res = await fetch(`/api/playlists/characters/${activeCharacterPlaylistId}`, {
+            const res = await fetch(`/api/playlists/characters/${playlistId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
-                body: JSON.stringify({ itemId: characterId, action: 'add' })
+                body: JSON.stringify({ itemId: pendingItemToAdd.id, action: 'add' })
             });
+
             if (res.ok) {
-                showToast(`${characterName} added to your active playlist!`);
+                showToast(`${pendingItemToAdd.name} added to ${playlistName}!`);
+                playlistSelectModal.classList.remove('active');
             } else {
-                 const errData = await res.json();
-                throw new Error(errData.msg || 'Failed to add character to playlist');
+                const err = await res.json();
+                showToast(err.msg || 'Failed to add character', true);
             }
-        } catch (err) {
-            console.error('Failed to add to playlist', err);
-            showToast(err.message, true);
+        } catch (error) {
+            showToast('Network error', true);
         }
     };
 
+    closePlaylistSelect.addEventListener('click', () => playlistSelectModal.classList.remove('active'));
+
+    // --- Core: Fetch & Display (Infinite Scroll) ---
     const fetchAndDisplay = async (category, page, shouldAppend = false) => {
+        if (isLoading) return;
+        isLoading = true;
+
         if (!shouldAppend) {
             grid.innerHTML = `<div class="loader-container"><div class="loader"></div></div>`;
+            sentinelLoader.style.display = 'none';
+        } else {
+            sentinelLoader.style.display = 'block';
         }
-        loadMoreButton.style.display = 'none';
         
         let url = `/api/characters?page=${page}&limit=12`;
         if (category && category !== 'All') url += `&category=${category}`;
+
         try {
             const response = await fetch(url);
             const data = await response.json();
+            
             if (!shouldAppend) grid.innerHTML = '';
-            renderGrid(data.results);
+            renderGrid(data.results || []);
+
             if (data.hasNextPage) {
-                loadMoreButton.style.display = 'block';
+                observer.observe(sentinel);
+            } else {
+                observer.unobserve(sentinel);
+                sentinelLoader.style.display = 'none';
             }
-        } catch (error) { console.error('Failed to fetch characters:', error); }
-    };
-
-    const fetchSearchResults = async (term) => {
-        grid.innerHTML = `<div class="loader-container"><div class="loader"></div></div>`;
-        filterNav.style.display = 'none';
-        loadMoreButton.style.display = 'none';
-
-        if (!term) {
-            filterNav.style.display = 'flex';
-            fetchAndDisplay(currentCategory, 1, false);
-            return;
+        } catch (error) { 
+            console.error('Failed to fetch characters:', error); 
+        } finally {
+            isLoading = false;
+            if (shouldAppend) sentinelLoader.style.display = 'none';
         }
-        try {
-            const response = await fetch(`/api/characters/search/${term}`);
-            const data = await response.json();
-            grid.innerHTML = '';
-            renderGrid(data.results);
-        } catch (error) { console.error('Failed to fetch search results:', error); }
     };
 
     const renderGrid = (characters) => {
@@ -108,41 +147,86 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = document.createElement('div');
             card.className = 'character-card';
             card.innerHTML = `
-                <div class="favorite-omnitrix" title="Add to Active Playlist"></div>
+                <div class="favorite-omnitrix" title="Add to Playlist"></div>
                 <div class="character-card-image-wrapper"><img src="${char.image || 'images/placeholder.png'}" alt="${char.name}"></div>
                 <div class="character-card-info"><h3>${char.name.toUpperCase()}</h3></div>`;
             
-            card.addEventListener('click', (e) => {
-                if(e.target.classList.contains('favorite-omnitrix')) {
-                    addItemToActivePlaylist(char._id, char.name);
-                } else {
-                    openModal(char)
-                }
+            card.querySelector('.favorite-omnitrix').addEventListener('click', (e) => {
+                e.stopPropagation();
+                openPlaylistSelectionModal(char._id, char.name);
             });
+
+            card.addEventListener('click', () => openModal(char));
             grid.appendChild(card);
         });
     };
 
+    // --- Core: Autocomplete ---
+    const showSuggestions = (results) => {
+        suggestionsBox.innerHTML = '';
+        if (results.length === 0) {
+            suggestionsBox.style.display = 'none';
+            return;
+        }
+        results.forEach(char => {
+            const div = document.createElement('div');
+            div.className = 'suggestion-item';
+            div.innerHTML = `<img src="${char.image || 'images/placeholder.png'}"><span>${char.name}</span>`;
+            div.addEventListener('click', () => {
+                openModal(char);
+                suggestionsBox.style.display = 'none';
+                searchBar.value = '';
+            });
+            suggestionsBox.appendChild(div);
+        });
+        suggestionsBox.style.display = 'block';
+    };
+
     searchBar.addEventListener('input', (e) => {
+        const term = e.target.value.trim();
         clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => { fetchSearchResults(e.target.value.trim()); }, 300);
+        if (term.length < 2) {
+            suggestionsBox.style.display = 'none';
+            if (term.length === 0) {
+                // filterNav.style.display = 'flex'; // Optional: Restore filters
+                // fetchAndDisplay(currentCategory, 1, false);
+            }
+            return;
+        }
+        searchTimeout = setTimeout(async () => {
+            // filterNav.style.display = 'none';
+            try {
+                const response = await fetch(`/api/characters/search/${encodeURIComponent(term)}`);
+                const data = await response.json();
+                showSuggestions(data.results || []);
+            } catch (error) { console.error(error); }
+        }, 300);
     });
 
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.search-container')) suggestionsBox.style.display = 'none';
+    });
+
+    // --- Filter & Scroll Observer ---
     filterNav.addEventListener('click', (e) => {
         if (e.target.tagName === 'BUTTON') {
             currentCategory = e.target.dataset.category;
             currentPage = 1;
-            document.querySelector('.filter-btn.active').classList.remove('active');
+            document.querySelector('.filter-btn.active')?.classList.remove('active');
             e.target.classList.add('active');
+            if (observer) observer.disconnect();
             fetchAndDisplay(currentCategory, currentPage, false);
         }
     });
 
-    loadMoreButton.addEventListener('click', () => {
-        currentPage++;
-        fetchAndDisplay(currentCategory, currentPage, true);
-    });
+    const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && !isLoading) {
+            currentPage++;
+            fetchAndDisplay(currentCategory, currentPage, true);
+        }
+    }, { rootMargin: '100px' });
 
+    // --- Modal Logic (Existing + Updates) ---
     const openModal = (char) => {
         const detailCard = modal.querySelector('.detail-card');
         detailCard.classList.remove('ai-view');
@@ -164,42 +248,39 @@ document.addEventListener('DOMContentLoaded', () => {
         
         document.getElementById('tab-history').textContent = char.history || 'No information available.';
         document.getElementById('tab-relationships').textContent = char.relationships || 'No information available.';
-        
-       
-        const detailCardBody = modal.querySelector('.detail-card-body');
 
+        // Add to Playlist Button
+        const detailCardBody = modal.querySelector('.detail-card-body');
         const oldBtn = document.getElementById('modal-char-favorite-btn');
         if (oldBtn) oldBtn.remove();
         
         const favButton = document.createElement('button');
         favButton.id = 'modal-char-favorite-btn';
         favButton.className = 'add-to-omnitrix-btn'; 
-        favButton.textContent = 'Add to Active Playlist';
-        favButton.onclick = () => {
-            addItemToActivePlaylist(char._id, char.name);
-        };
-        
+        favButton.textContent = 'Add to Playlist';
+        favButton.onclick = () => openPlaylistSelectionModal(char._id, char.name);
         detailCardBody.appendChild(favButton);
 
         modal.classList.add('active');
 
+        // Tab Logic
         const tabNav = modal.querySelector('.tab-nav');
         if (tabNav) {
             const tabPanes = modal.querySelectorAll('.tab-pane');
-            const onTabClick = (e) => {
+            const newTabNav = tabNav.cloneNode(true);
+            tabNav.parentNode.replaceChild(newTabNav, tabNav);
+            newTabNav.addEventListener('click', (e) => {
                 if (e.target.tagName === 'BUTTON') {
-                    tabNav.querySelector('.active')?.classList.remove('active');
+                    newTabNav.querySelector('.active')?.classList.remove('active');
                     e.target.classList.add('active');
                     tabPanes.forEach(pane => pane.classList.remove('active'));
                     modal.querySelector(`#${e.target.dataset.tab}`).classList.add('active');
                 }
-            };
-            const newTabNav = tabNav.cloneNode(true);
-            tabNav.parentNode.replaceChild(newTabNav, tabNav);
-            newTabNav.addEventListener('click', onTabClick);
+            });
             newTabNav.querySelector('button')?.click();
         }
 
+        // AI Details
         const knowMoreBtn = modal.querySelector('.know-more-btn');
         const backBtn = modal.querySelector('.back-button');
         const aiContentDiv = modal.querySelector('.ai-details-content');
@@ -209,35 +290,19 @@ document.addEventListener('DOMContentLoaded', () => {
             aiContentDiv.innerHTML = '<div class="loading-spinner"></div>';
             try {
                 const response = await fetch(`/api/ai/details/character/${encodeURIComponent(char.name)}`);
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to fetch AI details');
-                }
                 const htmlContent = await response.text();
                 aiContentDiv.innerHTML = htmlContent;
             } catch (err) {
-                aiContentDiv.innerHTML = `<p style="color: #ff4d4d;">Error: ${err.message}</p>`;
+                aiContentDiv.innerHTML = `<p style="color: #ff4d4d;">Error.</p>`;
             }
         };
 
-        backBtn.onclick = () => {
-            detailCard.classList.remove('ai-view');
-        };
+        backBtn.onclick = () => detailCard.classList.remove('ai-view');
     };
-    
-    const closeModal = () => {
-        modal.classList.remove('active');
-    };
-    
-    closeButton.addEventListener('click', closeModal);
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            closeModal();
-        }
-    });
 
-    getActivePlaylistId().then(id => {
-        activeCharacterPlaylistId = id;
-    });
+    const closeModal = () => modal.classList.remove('active');
+    closeButton.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
     fetchAndDisplay(currentCategory, currentPage);
 });

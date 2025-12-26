@@ -1,6 +1,3 @@
-
-
-
 const express = require('express');
 const router = express.Router();
 const { GoogleGenerativeAI } = require('@google/generative-ai');
@@ -17,7 +14,7 @@ const handleAiError = (res, err, context) => {
     if (err.status === 429) {
         statusCode = 429;
         message = 'AI service quota exceeded. Please try again later.';
-    } else if (err.message.includes('fetch')) {
+    } else if (err.message && err.message.includes('fetch')) {
         statusCode = 503; 
         message = 'Could not connect to the AI service. Please check the connection.';
     }
@@ -25,7 +22,7 @@ const handleAiError = (res, err, context) => {
     res.status(statusCode).json({ error: message });
 };
 
-
+// Details Route
 router.get('/details/:type/:name', async (req, res) => {
     try {
         const { type, name } = req.params;
@@ -34,9 +31,9 @@ router.get('/details/:type/:name', async (req, res) => {
         const prompt = `
             You are an expert on the Ben 10 universe.
             Provide a detailed summary for the Ben 10 ${type} named "${name}".
-            Include the following sections: a detailed Appearance, their core Personality, and a comprehensive list of their Powers and Abilities.
-            Format your entire response in simple HTML. Use <h3> for section titles and <ul><li> for lists of abilities.
-            Provide only the HTML content, do not include any markdown code block delimiters like \`\`\`html. Do not include <html>, <head>, or <body> tags.
+            Include: Appearance, Personality, and Powers/Abilities.
+            Format response in simple HTML (<h3> for titles, <ul><li> for lists).
+            Do not include markdown (\`\`\`html) or body tags.
         `;
 
         const result = await model.generateContent(prompt);
@@ -50,48 +47,80 @@ router.get('/details/:type/:name', async (req, res) => {
     }
 });
 
-
+// Chat Route
 router.post('/', async (req, res) => {
     const userQuery = req.body.query;
-    if (!userQuery) {
-        return res.status(400).json({ error: 'Query is required.' });
-    }
+    if (!userQuery) return res.status(400).json({ error: 'Query is required.' });
 
-    const azmuthPrompt = `You are Azmuth, the creator of the Omnitrix, a leading expert on the Ben 10 universe. You are brilliant, slightly arrogant, and speak formally.
-    Your response must ONLY be the direct dialogue from Azmuth. Do not include any descriptions of his actions, gestures, or tone of voice in parentheses or asterisks.
-    USER QUESTION: "${userQuery}"
+    const azmuthPrompt = `You are Azmuth, creator of the Omnitrix. Brilliant, arrogant, formal.
+    Respond only with dialogue.
+    USER: "${userQuery}"
     AZMUTH:`;
 
     try {
-        console.log("Attempting to use Google Gemini...");
         const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" }); 
         const result = await model.generateContent(azmuthPrompt);
         const response = await result.response;
         const text = response.text();
-
-        console.log("Success with Google Gemini.");
         return res.json({ answer: text });
-
     } catch (err) {
-        if (err.status === 429) {
-            console.log("Google Gemini quota exceeded. Falling back to OpenAI...");
-            try {
-                const completion = await openai.chat.completions.create({
-                    model: "gpt-3.5-turbo",
-                    messages: [{ role: "user", content: azmuthPrompt }],
-                });
-                const text = completion.choices[0].message.content;
-
-                console.log("Success with OpenAI fallback.");
-                return res.json({ answer: text });
-
-            } catch (openAIError) {
-                return handleAiError(res, openAIError, "OpenAI Fallback");
-            }
-        }
         return handleAiError(res, err, "Google Gemini Chat");
     }
 });
 
+// --- UPDATED BATTLE ROUTE ---
+router.post('/battle', async (req, res) => {
+    try {
+        const { team } = req.body; 
+
+        if (!team || team.length === 0) {
+            return res.status(400).json({ error: "No aliens in your playlist!" });
+        }
+
+        console.log("Battle Team sent to AI:", team);
+
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+        const prompt = `
+            Roleplay as the Omnitrix AI. 
+            My active playlist contains: ${team.join(', ')}.
+            
+            1. Select a random villain from the Ben 10 universe.
+            2. Simulate a short battle (3-4 sentences).
+            3. Decide outcome (VICTORY or DEFEAT).
+            
+            Strictly return a valid JSON object with this format:
+            {
+                "villain": "Villain Name",
+                "scenario": "Scenario text...",
+                "outcome": "VICTORY"
+            }
+        `;
+
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+        
+        console.log("Raw AI Response:", text);
+
+        // ROBUST JSON CLEANING (Fixes the "undefined" bug)
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        
+        if (!jsonMatch) {
+            throw new Error("AI did not return a valid JSON object");
+        }
+
+        const battleData = JSON.parse(jsonMatch[0]);
+        res.json(battleData);
+
+    } catch (err) {
+        console.error("AI Battle Error:", err);
+        res.status(500).json({ 
+            villain: "Glitch", 
+            scenario: "The Codon Stream is interrupted. Simulation failed.", 
+            outcome: "ERROR" 
+        });
+    }
+});
 
 module.exports = router;

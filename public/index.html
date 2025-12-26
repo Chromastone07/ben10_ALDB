@@ -17,14 +17,20 @@
             </a>
             <div id="main-nav" class="main-nav"></div>
         </nav>
+        <button id="battle-mode-btn" class="battle-mode-trigger">
+            ⚔️ Battle Simulation
+        </button>
     </header>
 
     <main>
         <section class="alien-section">
             <h2>Alien life-form Database: <span>Alien Files</span></h2>
-            <div class="search-container">
-                <input type="text" id="search-bar" name="alien_search" class="search-bar" placeholder="Search for an alien...">
+            
+            <div class="search-container" style="position: relative;"> 
+                <input type="text" id="search-bar" name="alien_search" class="search-bar" placeholder="Search for an alien..." autocomplete="off">
+                <div id="suggestions-box" class="suggestions-box"></div> 
             </div>
+
             <div class="filter-nav">
                 <button class="filter-btn active" data-series="All">All Aliens</button>
                 <button class="filter-btn" data-series="Classic">Classic</button>
@@ -33,10 +39,11 @@
                 <button class="filter-btn" data-series="Omniverse">Omniverse</button>
                 <button class="filter-btn" data-series="Reboot">Reboot</button>
             </div>
+            
             <div class="alien-container"></div>
             
-            <div id="load-more-container" class="load-more-container">
-                <button id="load-more-aliens" class="load-more-btn">Load More</button>
+            <div id="scroll-sentinel" class="loader-container" style="height: 50px; display: flex; justify-content: center; align-items: center;">
+                <div class="loader" style="display: none;"></div>
             </div>
         </section>
     </main>
@@ -68,6 +75,49 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div id="playlist-select-modal" class="modal-overlay" style="z-index: 3000;">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <span class="close-button" id="close-playlist-select">&times;</span>
+            <h3 class="orbitron-font" style="color: var(--accent-cyan); margin-bottom: 20px;">Select Playlist</h3>
+            <p id="playlist-select-prompt" style="color: #ccc; margin-bottom: 20px;">Where should we store this DNA?</p>
+            <div id="playlist-list-container" style="max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
+                </div>
+            <div id="playlist-loader" class="loader" style="display:none; margin: 10px auto;"></div>
+        </div>
+    </div>
+
+    <div id="battle-modal" class="modal-overlay">
+        <div class="modal-content battle-theme">
+            <span class="close-button" id="close-battle">&times;</span>
+            <h2 class="orbitron-font">Combat Simulation</h2>
+            
+            <div style="margin-bottom: 15px;">
+                <label for="battle-playlist-select" style="color: #ccc; margin-right: 10px;">Select Team:</label>
+                <select id="battle-playlist-select" style="padding: 5px; background: #000; color: #5eff5e; border: 1px solid #5eff5e; border-radius: 5px; font-family: 'Orbitron';">
+                    <option value="">Loading Playlists...</option>
+                </select>
+            </div>
+
+            <div id="battle-stage" class="battle-stage">
+                <div class="team-display">
+                    <h3>Your Team</h3>
+                    <ul id="battle-team-list"></ul>
+                </div>
+                <div class="vs-divider">VS</div>
+                <div class="villain-display">
+                    <h3 id="battle-villain-name">???</h3>
+                    <div id="battle-loader" class="loader" style="display:none;"></div>
+                </div>
+            </div>
+
+            <div id="battle-log" class="battle-log">
+                <p>Initialize simulation to begin...</p>
+            </div>
+
+            <button id="start-battle-btn" class="action-btn">SIMULATE BATTLE</button>
         </div>
     </div>
 

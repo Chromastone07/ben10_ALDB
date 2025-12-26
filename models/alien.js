@@ -1,16 +1,15 @@
 const mongoose = require('mongoose');
 
 const alienSchema = new mongoose.Schema({
-    name: { type: String, required: true, index: true },
-    species: { type: String, index: true },
+    name: { type: String, required: true },
+    species: { type: String },
     homePlanet: { type: String },
     series: [{
         type: String,
-        enum: ['Classic', 'Alien Force', 'Ultimate Alien', 'Omniverse', 'Reboot'],
-        index: true
+        enum: ['Classic', 'Alien Force', 'Ultimate Alien', 'Omniverse', 'Reboot']
     }],
     image: { type: String },
-    abilities: [{ type: String, index: true }],
+    abilities: [{ type: String }],
     weaknesses: [{ type: String }],
     ultimateForm: { type: String, default: null },
     ultimateImage: { type: String, default: null },

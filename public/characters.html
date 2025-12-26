@@ -22,9 +22,12 @@
     
     <main class="main-container">
         <h2>Universe Dossier: <span>Character Files</span></h2>
-        <div class="search-container">
-            <input type="text" id="search-bar" class="search-bar" placeholder="Search for a character...">
+        
+        <div class="search-container" style="position: relative;">
+            <input type="text" id="search-bar" class="search-bar" placeholder="Search for a character..." autocomplete="off">
+            <div id="suggestions-box" class="suggestions-box"></div>
         </div>
+
         <div class="filter-nav">
             <button class="filter-btn active" data-category="All">ALL</button>
             <button class="filter-btn" data-category="Character">CHARACTERS</button>
@@ -32,11 +35,10 @@
             <button class="filter-btn" data-category="Anti-Hero">ANTI-HEROES</button>
         </div>
 
-        <div id="character-grid" class="character-grid">
-            </div>
+        <div id="character-grid" class="character-grid"></div>
 
-        <div id="load-more-container" class="load-more-container">
-            <button id="load-more-characters" class="load-more-btn">Load More</button>
+        <div id="scroll-sentinel" class="loader-container" style="height: 50px; display: flex; justify-content: center; align-items: center;">
+            <div class="loader" style="display: none;"></div>
         </div>
     </main>
 
@@ -72,18 +74,21 @@
                 </div>
             </div>
             <div class="ai-details-view">
-                <button class="back-button"style="background: transparent;
-    border: 1px solid var(--border-color);
-    color: var(--primary-green);
-    padding: 0.5rem 1.2rem;
-    border-radius: 999px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: 0.2s;
-    font-family: inherit;">&larr; Back to Details</button>
+                <button class="back-button" style="background: transparent; border: 1px solid var(--border-color); color: var(--primary-green); padding: 0.5rem 1.2rem; border-radius: 999px; cursor: pointer; font-size: 0.9rem; transition: 0.2s; font-family: inherit;">&larr; Back to Details</button>
                 <h3>Azmuth's Files</h3>
                 <div class="ai-details-content"></div>
             </div>
+        </div>
+    </div>
+
+    <div id="playlist-select-modal" class="modal-overlay" style="z-index: 3000;">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <span class="close-button" id="close-playlist-select">&times;</span>
+            <h3 style="color: var(--accent-cyan); margin-bottom: 20px; font-family: 'Orbitron', sans-serif;">Select Playlist</h3>
+            <p id="playlist-select-prompt" style="color: #ccc; margin-bottom: 20px;">Add this individual to which file?</p>
+            <div id="playlist-list-container" style="max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
+                </div>
+            <div id="playlist-loader" class="loader" style="display:none; margin: 10px auto;"></div>
         </div>
     </div>
 
