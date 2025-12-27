@@ -1,0 +1,127 @@
+/* =========================================
+   MULTIVERSE GATEWAY STYLES (main.css)
+   ========================================= */
+
+/* Import Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600&family=Orbitron:wght@400;700;900&display=swap');
+
+:root {
+    --font-tech: 'Orbitron', sans-serif;
+    --font-read: 'Exo 2', sans-serif;
+    --accent-green: #00ff41;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+.gateway-body {
+    background: #000;
+    background-image: radial-gradient(circle at center, #111 0%, #000 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    font-family: var(--font-read);
+}
+
+.gateway-container {
+    text-align: center;
+    width: 100%;
+    max-width: 1200px;
+}
+
+.gateway-title {
+    font-family: var(--font-tech);
+    font-size: 4rem;
+    text-transform: uppercase;
+    letter-spacing: 10px;
+    margin-bottom: 10px;
+    background: linear-gradient(to right, #fff, #555);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: glow 3s infinite alternate;
+}
+
+.gateway-subtitle {
+    color: #666;
+    letter-spacing: 2px;
+    margin-bottom: 60px;
+    text-transform: uppercase;
+}
+
+/* The Grid */
+.universe-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+/* Universe Cards */
+.universe-card {
+    position: relative;
+    height: 350px;
+    background: #080808;
+    border: 1px solid #333;
+    border-radius: 15px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+/* Background Gradients */
+.ben10-theme .card-bg { background: linear-gradient(to top, rgba(0,255,65,0.15), transparent); }
+.marvel-theme .card-bg { background: linear-gradient(to top, rgba(255,0,0,0.15), transparent); }
+.dc-theme .card-bg { background: linear-gradient(to top, rgba(0,0,255,0.15), transparent); }
+.transformers-theme .card-bg { background: linear-gradient(to top, rgba(255,255,0,0.15), transparent); }
+
+.card-bg {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    transition: transform 0.5s;
+    opacity: 0.5;
+}
+
+.universe-card:hover .card-bg { transform: scale(1.1); opacity: 0.9; }
+
+/* Content */
+.card-content {
+    position: relative;
+    padding: 30px;
+    background: linear-gradient(to top, #000 10%, transparent);
+    z-index: 2;
+    text-align: left;
+}
+
+.card-content h2 {
+    color: #fff;
+    font-family: var(--font-tech);
+    font-size: 2rem;
+    margin-bottom: 5px;
+}
+
+.card-content p {
+    color: #aaa;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+}
+
+/* Status Indicators */
+.status {
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+}
+.status.active { background: var(--accent-green); color: #000; box-shadow: 0 0 10px var(--accent-green); }
+.status.locked { background: #333; color: #777; border: 1px solid #555; }
+
+/* Hover Border Effects */
+.universe-card.ben10-theme:hover { border-color: var(--accent-green); box-shadow: 0 0 30px rgba(0,255,65,0.2); }
+.universe-card.marvel-theme:hover { border-color: #ff3333; box-shadow: 0 0 30px rgba(255,0,0,0.2); }
+.universe-card.dc-theme:hover { border-color: #3388ff; box-shadow: 0 0 30px rgba(0,68,255,0.2); }
+
+.universe-card.locked { cursor: not-allowed; opacity: 0.6; }

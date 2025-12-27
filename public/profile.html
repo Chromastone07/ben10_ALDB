@@ -15,14 +15,16 @@
     
     <header>
         <nav class="navbar">
-            <a href="index.html" class="nav-logo">Alien Database</a>
+            <a href="aliens.html" class="nav-logo">Alien Database</a>
             <div class="main-nav">
                 <a href="aliens.html">Aliens</a>
                 <a href="universe.html">Universe</a>
+                <a href="characters.html">world</a>
                 <a href="planets.html">Planets</a>
                 <a href="episodes.html">Episodes</a>
                 <a href="my-omnitrix.html">My Omnitrix</a>
                 <a href="profile.html" class="active">Profile</a>
+               
                 <button id="logout-btn" class="nav-btn logout">Logout</button>
             </div>
         </nav>
@@ -61,6 +63,11 @@
             <div class="profile-card settings-card">
                 <h3>Account Settings</h3>
                 <div class="settings-actions">
+<button id="system-audio-btn" class="action-btn" style="display: flex; justify-content: space-between; align-items: center;">
+            System Audio
+            <span id="audio-status-text">ON</span>
+        </button>
+
                     <button id="edit-username-btn" class="action-btn">Edit Username</button>
                     <button id="change-password-btn" class="action-btn">Change Password</button>
                     <button id="delete-account-btn" class="delete-btn">Delete Account</button>
@@ -111,6 +118,19 @@
         </div>
     </div>
 
-    <script src="profile.js"></script>
+    <script src="audio.js"></script>
+<script src="profile.js"></script> 
+<!-- <script>
+    // Simple logic to hook up the button
+    const audioBtn = document.getElementById('audio-toggle');
+    if(audioBtn) {
+        audioBtn.addEventListener('click', () => {
+            const isMuted = audioSystem.toggleMute();
+            audioBtn.textContent = isMuted ? '🔇' : '🔊';
+        });
+        // Set initial icon
+        audioBtn.textContent = localStorage.getItem('plumber_muted') === 'true' ? '🔇' : '🔊';
+    }
+</script> -->
 </body>
 </html>

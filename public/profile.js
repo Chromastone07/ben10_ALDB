@@ -182,4 +182,41 @@ document.addEventListener('DOMContentLoaded', async () => {
             icon.textContent = "👁️";
         }
     };
+
+    // --- AUDIO SETTINGS LOGIC ---
+    const audioBtn = document.getElementById('system-audio-btn');
+    const audioStatusText = document.getElementById('audio-status-text');
+
+    // 1. Initialize Button State on Load
+    const isMuted = localStorage.getItem('plumber_muted') === 'true';
+    updateAudioUI(isMuted);
+
+    if (audioBtn) {
+        audioBtn.addEventListener('click', () => {
+            // Toggle State
+            const currentState = localStorage.getItem('plumber_muted') === 'true';
+            const newState = !currentState;
+            
+            // Call the global system to update
+            audioSystem.setMute(newState);
+            
+            // Update UI
+            updateAudioUI(newState);
+            
+            // Feedback sound (only if turning ON)
+            if (!newState) audioSystem.sfxSuccess();
+        });
+    }
+
+    function updateAudioUI(muted) {
+        if (muted) {
+            audioStatusText.textContent = "OFF";
+            audioStatusText.style.color = "#666";
+            audioBtn.style.borderColor = "#666";
+        } else {
+            audioStatusText.textContent = "ON";
+            audioStatusText.style.color = "var(--accent-green)"; // Green for ON
+            audioBtn.style.borderColor = "var(--accent-cyan)";
+        }
+    }
 });

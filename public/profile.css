@@ -410,3 +410,17 @@ body {
 .toast span:first-child { 
     font-size: 1.2rem; 
 }
+
+/* Audio Toggle Button */
+#audio-toggle {
+    color: var(--text-secondary);
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#audio-toggle:hover {
+    color: var(--accent-cyan);
+    text-shadow: 0 0 10px var(--glow-cyan);
+    transform: scale(1.1);
+}
