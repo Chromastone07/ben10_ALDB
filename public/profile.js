@@ -1,133 +1,185 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('token');
+    
+    // Redirect if no token
     if (!token) {
         window.location.href = 'login.html';
         return;
     }
 
-    const usernameDisplay = document.getElementById('username-display');
-    const emailDisplay = document.getElementById('email-display');
-    const memberSinceDisplay = document.getElementById('member-since-display');
+    // --- DOM ELEMENTS ---
+    const usernameEl = document.getElementById('profile-username');
+    const emailEl = document.getElementById('profile-email');
+    const rankEl = document.getElementById('profile-rank');
+    const joinedEl = document.getElementById('profile-joined');
+    const badgeImg = document.getElementById('profile-badge');
+    const toastContainer = document.getElementById('toast-container');
 
-    const usernameModal = document.getElementById('username-modal');
-    const passwordModal = document.getElementById('password-modal');
-    const deleteModal = document.getElementById('delete-modal');
+    // --- HELPER: TOAST NOTIFICATIONS ---
+    const showToast = (message, type = 'success') => {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type} show`;
+        toast.innerHTML = type === 'success' 
+            ? `<span>✅</span> <span>${message}</span>` 
+            : `<span>⚠️</span> <span>${message}</span>`;
+        
+        toastContainer.appendChild(toast);
 
-    const modals = {
-        username: { element: usernameModal, btn: document.getElementById('open-username-modal-btn'), msg: document.getElementById('username-message') },
-        password: { element: passwordModal, btn: document.getElementById('open-password-modal-btn'), msg: document.getElementById('password-message') },
-        delete: { element: deleteModal, btn: document.getElementById('open-delete-modal-btn'), msg: document.getElementById('delete-message') },
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
     };
 
-    const showToast = (message, isError = false) => {
-        const toast = document.getElementById('toast-notification');
-        if (!toast) return;
-        toast.textContent = message;
-        toast.className = `toast show ${isError ? 'error' : ''}`;
-        setTimeout(() => toast.classList.remove('show'), 3000);
-    };
+    // --- 1. LOAD PROFILE ---
+    try {
+        const res = await fetch('/api/profile/me', {
+            headers: { 'Content-Type': 'application/json', 'x-auth-token': token }
+        });
 
-    const openModal = (modalKey) => modals[modalKey].element.classList.add('active');
-    const closeModal = (modalKey) => modals[modalKey].element.classList.remove('active');
-
-    Object.values(modals).forEach(({ element }) => {
-        element.querySelector('.close-button').addEventListener('click', () => element.classList.remove('active'));
-    });
-
-    const fetchProfile = async () => {
-        try {
-            const res = await fetch('/api/profile/me', { headers: { 'x-auth-token': token } });
-            if (!res.ok) throw new Error('Could not load profile. Please log in again.');
-            const user = await res.json();
-            usernameDisplay.textContent = user.username;
-            emailDisplay.textContent = user.email;
-            memberSinceDisplay.textContent = new Date(user.createdAt).toLocaleDateString();
-        } catch (err) {
+        // Handle Expired Token (401)
+        if (res.status === 401) {
             localStorage.removeItem('token');
             window.location.href = 'login.html';
+            return;
         }
+
+        const data = await res.json();
+
+        if (res.ok) {
+            if (usernameEl) usernameEl.textContent = data.username;
+            if (emailEl) emailEl.textContent = data.email;
+            if (rankEl) rankEl.textContent = data.rank || "RECRUIT";
+            if (joinedEl && data.createdAt) joinedEl.textContent = new Date(data.createdAt).toLocaleDateString();
+            
+            // Badge Logic
+            if (badgeImg) {
+                let badgeSrc = 'images/omnitrix.png'; // Default
+                if (data.rank === 'Plumber') badgeSrc = 'images/badges/plumber.png';
+                if (data.rank === 'Magister') badgeSrc = 'images/badges/magister.png';
+                badgeImg.src = badgeSrc;
+                badgeImg.onerror = () => badgeImg.src = 'images/omnitrix.png';
+            }
+
+            // Pre-fill Edit Modal
+            const editInput = document.getElementById('edit-username-input');
+            if (editInput) editInput.value = data.username;
+        }
+    } catch (err) { 
+        console.error("Profile Load Error:", err); 
+        showToast("Failed to load profile data", "error");
+    }
+
+    // --- 2. MODAL LOGIC ---
+    window.openModal = (id) => {
+        document.getElementById(id).classList.add('active');
+        document.body.style.overflow = 'hidden';
+    };
+    window.closeModal = (id) => {
+        document.getElementById(id).classList.remove('active');
+        document.body.style.overflow = '';
     };
 
+    // Open Buttons
+    document.getElementById('edit-username-btn')?.addEventListener('click', () => openModal('edit-profile-modal'));
+    document.getElementById('change-password-btn')?.addEventListener('click', () => openModal('password-modal'));
+    document.getElementById('delete-account-btn')?.addEventListener('click', () => openModal('delete-modal'));
 
-    modals.username.btn.addEventListener('click', () => openModal('username'));
-    modals.password.btn.addEventListener('click', () => openModal('password'));
-    modals.delete.btn.addEventListener('click', () => openModal('delete'));
-
-    const updateUsernameBtn = document.getElementById('update-username-btn');
-    updateUsernameBtn.addEventListener('click', async () => {
-        const newUsername = document.getElementById('new-username').value.trim();
-        if (!newUsername) return modals.username.msg.textContent = 'Username cannot be empty.';
-        
-        try {
-            const res = await fetch('/api/profile/update-username', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
-                body: JSON.stringify({ username: newUsername })
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.errors ? data.errors[0].msg : (data.msg || 'Failed to update username'));
-            
-            showToast('Username updated successfully!');
-            fetchProfile();
-            closeModal('username');
-        } catch (err) {
-            modals.username.msg.textContent = err.message;
-        }
+    // Close Buttons (X and Outside Click)
+    document.querySelectorAll('.close-button').forEach(btn => btn.addEventListener('click', (e) => {
+        closeModal(e.target.closest('.modal-overlay').id);
+    }));
+    window.addEventListener('click', (e) => {
+        if (e.target.classList.contains('modal-overlay')) closeModal(e.target.id);
     });
 
-    const changePasswordBtn = document.getElementById('change-password-btn');
-    changePasswordBtn.addEventListener('click', async () => {
-        const currentPassword = document.getElementById('current-password').value;
-        const newPassword = document.getElementById('new-password').value;
-        const confirmNewPassword = document.getElementById('confirm-new-password').value;
+    // --- 3. ACTIONS ---
 
-        if (newPassword !== confirmNewPassword) {
-            return modals.password.msg.textContent = 'New passwords do not match.';
-        }
+    // Edit Username
+    document.getElementById('confirm-edit-btn')?.addEventListener('click', async () => {
+        const newName = document.getElementById('edit-username-input').value;
+        if (!newName.trim()) return showToast("Username cannot be empty", "error");
+
+        try {
+            const res = await fetch('/api/profile/update', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+                body: JSON.stringify({ username: newName })
+            });
+            const data = await res.json();
+            
+            if (res.ok) {
+                showToast("Username updated!");
+                if (usernameEl) usernameEl.textContent = newName;
+                closeModal('edit-profile-modal');
+            } else {
+                showToast(data.msg || "Update failed", "error");
+            }
+        } catch (e) { showToast("Server Error", "error"); }
+    });
+
+    // Change Password
+    document.getElementById('confirm-password-btn')?.addEventListener('click', async () => {
+        const currentPass = document.getElementById('current-pass-input').value;
+        const newPass = document.getElementById('new-pass-input').value;
+
+        if (!currentPass || !newPass) return showToast("Fill all fields", "error");
+        if (newPass.length < 6) return showToast("New password must be 6+ chars", "error");
 
         try {
             const res = await fetch('/api/profile/change-password', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
-                body: JSON.stringify({ currentPassword, newPassword })
+                body: JSON.stringify({ currentPassword: currentPass, newPassword: newPass })
             });
             const data = await res.json();
-            if (!res.ok) throw new Error(data.errors ? data.errors[0].msg : (data.msg || 'Failed to change password'));
 
-            showToast('Password updated successfully!');
-            document.getElementById('current-password').value = '';
-            document.getElementById('new-password').value = '';
-            document.getElementById('confirm-new-password').value = '';
-            closeModal('password');
-        } catch (err) {
-            modals.password.msg.textContent = err.message;
-        }
+            if (res.ok) {
+                showToast("Password changed! Logging out...", "success");
+                setTimeout(() => {
+                    localStorage.removeItem('token');
+                    window.location.href = 'login.html';
+                }, 2000);
+            } else {
+                showToast(data.msg || "Failed to change password", "error");
+            }
+        } catch (e) { showToast("Server Error", "error"); }
     });
 
-    const deleteConfirmInput = document.getElementById('delete-confirm');
-    const deleteAccountBtn = document.getElementById('delete-account-btn');
-    
-    deleteConfirmInput.addEventListener('input', () => {
-        deleteAccountBtn.disabled = deleteConfirmInput.value !== 'DELETE';
-    });
-
-    deleteAccountBtn.addEventListener('click', async () => {
+    // Delete Account
+    document.getElementById('confirm-delete-btn')?.addEventListener('click', async () => {
         try {
-            const res = await fetch('/api/profile/delete-account', {
+            const res = await fetch('/api/profile/me', {
                 method: 'DELETE',
                 headers: { 'x-auth-token': token }
             });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.msg || 'Failed to delete account');
-            
-            showToast(data.msg);
-            localStorage.removeItem('token');
-            setTimeout(() => { window.location.href = 'index.html'; }, 2000);
-
-        } catch (err) {
-            modals.delete.msg.textContent = err.message;
-        }
+            if (res.ok) {
+                showToast("Account deleted. Goodbye.", "success");
+                setTimeout(() => {
+                    localStorage.removeItem('token');
+                    window.location.href = 'index.html';
+                }, 2000);
+            } else {
+                showToast("Could not delete account", "error");
+            }
+        } catch (e) { showToast("Server Error", "error"); }
     });
 
-    fetchProfile();
+    // Logout
+    document.getElementById('logout-btn')?.addEventListener('click', () => {
+        localStorage.removeItem('token');
+        window.location.href = 'login.html';
+    });
+
+    // Password Toggle Helper
+    window.togglePassword = (id, icon) => {
+        const input = document.getElementById(id);
+        if (input.type === "password") {
+            input.type = "text";
+            icon.textContent = "🔒";
+        } else {
+            input.type = "password";
+            icon.textContent = "👁️";
+        }
+    };
 });

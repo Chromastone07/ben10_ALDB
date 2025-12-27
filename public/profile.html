@@ -3,104 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile - Ben 10 Database</title>
+    <title>Plumber Profile - Ben 10</title>
+    
     <link rel="stylesheet" href="style.css">
+    
     <link rel="stylesheet" href="profile.css">
-    <link rel="stylesheet" href="responsive.css">
+    
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    
     <header>
         <nav class="navbar">
-            <a href="index.html" class="nav-logo">
-                <img src="images/ben10.png" alt="Ben 10 Logo" class="logo-img">
-                Alien Database
-            </a>
-            <div id="main-nav" class="main-nav"></div>
+            <a href="index.html" class="nav-logo">Alien Database</a>
+            <div class="main-nav">
+                <a href="aliens.html">Aliens</a>
+                <a href="universe.html">Universe</a>
+                <a href="planets.html">Planets</a>
+                <a href="episodes.html">Episodes</a>
+                <a href="my-omnitrix.html">My Omnitrix</a>
+                <a href="profile.html" class="active">Profile</a>
+                <button id="logout-btn" class="nav-btn logout">Logout</button>
+            </div>
         </nav>
     </header>
 
+    <div id="toast-container" class="toast-container"></div>
+
     <main class="profile-container">
-        <h1>Plumber Profile</h1>
+        <h1 class="page-title">Plumber Profile</h1>
 
         <div class="profile-grid">
-            <div class="profile-card" id="user-info-card">
-                <h2>User Information</h2>
-                <div class="info-group">
-                    <label>Username</label>
-                    <p id="username-display"></p>
+            <div class="profile-card badge-card">
+                <h3>Plumber Badge</h3>
+                <div class="badge-display">
+                    <div class="badge-ring">
+                        <img id="profile-badge" src="images/omnitrix.png" onerror="this.src='images/omnitrix.png'" alt="Rank Badge">
+                    </div>
+                    <div class="badge-info">
+                        <h2 id="profile-username">Loading...</h2>
+                        <p id="profile-rank" class="rank-text">DETECTING...</p>
+                    </div>
                 </div>
-                <div class="info-group">
-                    <label>Email</label>
-                    <p id="email-display"></p>
-                </div>
-                <div class="info-group">
-                    <label>Member Since</label>
-                    <p id="member-since-display"></p>
+
+                <div class="plumber-details">
+                    <div class="detail-row">
+                        <span class="label">Email:</span>
+                        <span id="profile-email" class="value">...</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Member Since:</span>
+                        <span id="profile-joined" class="value">...</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="profile-card" id="account-settings-card">
-                <h2>Account Settings</h2>
-                <div class="settings-buttons">
-                    <button class="profile-btn" id="open-username-modal-btn">Edit Username</button>
-                    <button class="profile-btn" id="open-password-modal-btn">Change Password</button>
-                    <button class="profile-btn btn-delete" id="open-delete-modal-btn">Delete Account</button>
+            <div class="profile-card settings-card">
+                <h3>Account Settings</h3>
+                <div class="settings-actions">
+                    <button id="edit-username-btn" class="action-btn">Edit Username</button>
+                    <button id="change-password-btn" class="action-btn">Change Password</button>
+                    <button id="delete-account-btn" class="delete-btn">Delete Account</button>
                 </div>
             </div>
         </div>
     </main>
 
-    <div id="username-modal" class="modal-overlay profile-modal">
-        <div class="modal-content">
+    <div id="edit-profile-modal" class="modal-overlay">
+        <div class="modal-content small-modal">
             <span class="close-button">&times;</span>
-            <h2>Change Username</h2>
-            <div id="username-message" class="message"></div>
-            <div class="form-group">
-                <label for="new-username">New Username</label>
-                <input type="text" id="new-username" autocomplete="username">
+            <h3>Edit Profile</h3>
+            <div class="input-group">
+                <input type="text" id="edit-username-input" placeholder="Enter new username">
             </div>
-            <button id="update-username-btn" class="profile-btn">Update Username</button>
+            <button id="confirm-edit-btn" class="action-btn">Save Changes</button>
         </div>
     </div>
 
-    <div id="password-modal" class="modal-overlay profile-modal">
-        <div class="modal-content">
+    <div id="password-modal" class="modal-overlay">
+        <div class="modal-content small-modal">
             <span class="close-button">&times;</span>
-            <h2>Change Password</h2>
-            <div id="password-message" class="message"></div>
-            <div class="form-group">
-                <label for="current-password">Current Password</label>
-                <input type="password" id="current-password" autocomplete="current-password">
+            <h3>Change Password</h3>
+            <div class="input-group">
+                <div class="password-container">
+                    <input type="password" id="current-pass-input" placeholder="Current Password">
+                    <span class="toggle-password" onclick="togglePassword('current-pass-input', this)">👁️</span>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="new-password">New Password</label>
-                <input type="password" id="new-password" autocomplete="new-password">
+            <div class="input-group">
+                <div class="password-container">
+                    <input type="password" id="new-pass-input" placeholder="New Password (min 6 chars)">
+                    <span class="toggle-password" onclick="togglePassword('new-pass-input', this)">👁️</span>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="confirm-new-password">Confirm New Password</label>
-                <input type="password" id="confirm-new-password" autocomplete="new-password">
-            </div>
-            <button id="change-password-btn" class="profile-btn">Update Password</button>
+            <button id="confirm-password-btn" class="action-btn">Update Password</button>
         </div>
     </div>
 
-    <div id="delete-modal" class="modal-overlay profile-modal">
-        <div class="modal-content">
+    <div id="delete-modal" class="modal-overlay">
+        <div class="modal-content small-modal" style="border-color: #ff4444;">
             <span class="close-button">&times;</span>
-            <h2>Delete Account</h2>
-            <div id="delete-message" class="message"></div>
-            <p>This action is permanent and cannot be undone. To confirm, please type "DELETE" into the box below.</p>
-            <div class="form-group">
-                <label for="delete-confirm">Type "DELETE" to confirm</label>
-                <input type="text" id="delete-confirm" autocomplete="off">
-            </div>
-            <button id="delete-account-btn" class="profile-btn btn-delete" disabled>Delete My Account</button>
+            <h3 style="color: #ff4444;">⚠ DELETE ACCOUNT</h3>
+            <p style="color: #ccc; margin-bottom: 20px;">
+                Are you sure? This will delete your profile and playlists permanently.
+            </p>
+            <button id="confirm-delete-btn" class="delete-btn" style="width: 100%;">Yes, Delete My Account</button>
         </div>
     </div>
-    
-    <div id="toast-notification" class="toast"></div>
-    <script src="auth.js"></script>
+
     <script src="profile.js"></script>
 </body>
 </html>

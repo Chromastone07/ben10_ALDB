@@ -6,7 +6,8 @@
     <title>My Omnitrix - Ben 10 Database</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="responsive.css">
-    <link rel="stylesheet" href="characters.css"> <link rel="stylesheet" href="new-favorites.css">
+    <link rel="stylesheet" href="characters.css"> 
+    <link rel="stylesheet" href="new-favorites.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -85,28 +86,21 @@
                     <p id="modal-char-species" class="modal-species"></p>
                 </div>
                <div class="detail-card-body">
-    <div class="tab-nav">
-        <button class="tab-btn" data-tab="tab-personality">Personality</button>
-        <button class="tab-btn" data-tab="tab-appearance">Appearance</button>
-        <button class="tab-btn" data-tab="tab-powers">Abilities</button>
-    </div>
-    <div class="modal-tab-content"> <div id="tab-personality" class="tab-pane"></div>
-        <div id="tab-appearance" class="tab-pane"></div>
-        <div id="tab-powers" class="tab-pane"></div>
-    </div>
-</div>
+                    <div class="tab-nav">
+                        <button class="tab-btn" data-tab="tab-personality">Personality</button>
+                        <button class="tab-btn" data-tab="tab-appearance">Appearance</button>
+                        <button class="tab-btn" data-tab="tab-powers">Abilities</button>
+                    </div>
+                    <div class="modal-tab-content"> 
+                        <div id="tab-personality" class="tab-pane"></div>
+                        <div id="tab-appearance" class="tab-pane"></div>
+                        <div id="tab-powers" class="tab-pane"></div>
+                    </div>
+                </div>
                  <div class="know-more-container"><button class="know-more-btn">Know More...</button></div>
             </div>
             <div class="ai-details-view">
-                <button class="back-button" style="background: transparent;
-    border: 1px solid var(--border-color);
-    color: var(--primary-green);
-    padding: 0.5rem 1.2rem;
-    border-radius: 999px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: 0.2s;
-    font-family: inherit;">&larr; Back to Details</button>
+                <button class="back-button" style="background: transparent; border: 1px solid var(--border-color); color: var(--primary-green); padding: 0.5rem 1.2rem; border-radius: 999px; cursor: pointer; font-size: 0.9rem; transition: 0.2s; font-family: inherit;">&larr; Back to Details</button>
                 <h3>Azmuth's Files</h3>
                 <div class="ai-details-content"></div>
             </div>
@@ -144,6 +138,16 @@
                 <button id="confirm-no" class="btn-rename">No</button>
             </div>
         </div>
+    </div>
+
+    <div id="theme-picker" class="theme-picker">
+        <div class="theme-toggle-btn" onclick="document.getElementById('theme-picker').classList.toggle('active')">
+            ⚙️
+        </div>
+        <div class="color-btn" style="background: #22d3ee;" onclick="setTheme('default')" title="Ben 10"></div>
+        <div class="color-btn" style="background: #ff3333;" onclick="setTheme('theme-red')" title="Albedo"></div>
+        <div class="color-btn" style="background: #3388ff;" onclick="setTheme('theme-blue')" title="Ben 23"></div>
+        <div class="color-btn" style="background: #d633ff;" onclick="setTheme('theme-purple')" title="Gwen"></div>
     </div>
 
     <div id="toast-notification" class="toast"></div>

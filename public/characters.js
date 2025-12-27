@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- DOM Elements ---
     const grid = document.getElementById('character-grid');
     const searchBar = document.getElementById('search-bar');
     const filterNav = document.querySelector('.filter-nav');
@@ -7,7 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeButton = modal.querySelector('.close-button');
     const toast = document.getElementById('toast-notification');
     
-    // New Elements
     const sentinel = document.getElementById('scroll-sentinel');
     const sentinelLoader = sentinel.querySelector('.loader');
     const suggestionsBox = document.getElementById('suggestions-box');
@@ -16,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const playlistListContainer = document.getElementById('playlist-list-container');
     const playlistLoader = document.getElementById('playlist-loader');
 
-    // --- State Variables ---
     let currentPage = 1;
     let currentCategory = 'All';
     let searchTimeout;
@@ -24,7 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let isLoading = false;
     let pendingItemToAdd = null;
 
-    // --- Helper: Toast ---
     const showToast = (message, isError = false) => {
         if (!toast) return;
         toast.textContent = message;
@@ -33,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
         toastTimeout = setTimeout(() => toast.classList.remove('show'), 3000);
     };
 
-    // --- Feature: Playlist Selection (My Omnitrix) ---
     const fetchUserPlaylists = async () => {
         const token = localStorage.getItem('token');
         if (!token) return [];
@@ -69,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         playlists.forEach(pl => {
             const btn = document.createElement('button');
-            btn.className = 'filter-btn'; // Reuse style
+            btn.className = 'filter-btn'; 
             btn.style.width = '100%';
             btn.style.marginBottom = '10px';
             btn.textContent = pl.name;
@@ -103,7 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     closePlaylistSelect.addEventListener('click', () => playlistSelectModal.classList.remove('active'));
 
-    // --- Core: Fetch & Display (Infinite Scroll) ---
     const fetchAndDisplay = async (category, page, shouldAppend = false) => {
         if (isLoading) return;
         isLoading = true;
@@ -161,7 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // --- Core: Autocomplete ---
     const showSuggestions = (results) => {
         suggestionsBox.innerHTML = '';
         if (results.length === 0) {
@@ -194,7 +187,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         searchTimeout = setTimeout(async () => {
-            // filterNav.style.display = 'none';
             try {
                 const response = await fetch(`/api/characters/search/${encodeURIComponent(term)}`);
                 const data = await response.json();
@@ -207,7 +199,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!e.target.closest('.search-container')) suggestionsBox.style.display = 'none';
     });
 
-    // --- Filter & Scroll Observer ---
     filterNav.addEventListener('click', (e) => {
         if (e.target.tagName === 'BUTTON') {
             currentCategory = e.target.dataset.category;
@@ -226,17 +217,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, { rootMargin: '100px' });
 
-    // --- Modal Logic (Existing + Updates) ---
+   // --- OPEN MODAL (With Scroll Freeze & All Features) ---
     const openModal = (char) => {
+        // 1. FREEZE BACKGROUND SCROLLING
+        document.body.style.overflow = 'hidden'; 
+
         const detailCard = modal.querySelector('.detail-card');
         detailCard.classList.remove('ai-view');
 
+        // Populate Basic Info
         document.getElementById('modal-image').src = char.image || 'images/placeholder.png';
         document.getElementById('modal-name').textContent = char.name.toUpperCase();
         document.getElementById('modal-species').textContent = char.species || 'Unknown';
         document.getElementById('tab-personality').textContent = char.personality || 'No information available.';
         document.getElementById('tab-appearance').textContent = char.appearance || 'No information available.';
         
+        // Populate Powers (Your custom splitting logic)
         const powersTab = document.getElementById('tab-powers');
         const abilities = char.powersAndAbilities;
         if (abilities) {
@@ -263,7 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         modal.classList.add('active');
 
-        // Tab Logic
+        // Tab Navigation Logic
         const tabNav = modal.querySelector('.tab-nav');
         if (tabNav) {
             const tabPanes = modal.querySelectorAll('.tab-pane');
@@ -280,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
             newTabNav.querySelector('button')?.click();
         }
 
-        // AI Details
+        // AI Logic
         const knowMoreBtn = modal.querySelector('.know-more-btn');
         const backBtn = modal.querySelector('.back-button');
         const aiContentDiv = modal.querySelector('.ai-details-content');
@@ -300,9 +296,30 @@ document.addEventListener('DOMContentLoaded', () => {
         backBtn.onclick = () => detailCard.classList.remove('ai-view');
     };
 
-    const closeModal = () => modal.classList.remove('active');
-    closeButton.addEventListener('click', closeModal);
+    // --- CLOSE MODAL (With Scroll Unfreeze) ---
+    const closeModal = () => {
+        // 2. UNFREEZE BACKGROUND SCROLLING (This was missing in your snippet!)
+        document.body.style.overflow = ''; 
+
+        modal.classList.remove('active');
+    };
+
+    // --- Event Listeners ---
+    if(closeButton) closeButton.addEventListener('click', closeModal);
     modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
 
+    // --- Initial Load ---
     fetchAndDisplay(currentCategory, currentPage);
 });
+
+
+    // const closeModal = () => {
+    //     // 2. UNFREEZE BACKGROUND SCROLLING
+    //     document.body.style.overflow = ''; 
+        
+    //     modal.classList.remove('active');
+        
+    //     // Cleanup (optional)
+    //     const detailCard = modal.querySelector('.detail-card');
+    //     if(detailCard) detailCard.classList.remove('ai-view');
+    // };

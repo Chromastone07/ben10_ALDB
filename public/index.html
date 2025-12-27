@@ -17,6 +17,9 @@
             </a>
             <div id="main-nav" class="main-nav"></div>
         </nav>
+        <button id="roulette-btn" class="battle-mode-trigger" style="right: auto; left: 20px; background: #22d3ee; border-color: #0099cc; color: #0d1b2a;">
+            🎲 Omnitrix Roulette
+        </button>
         <button id="battle-mode-btn" class="battle-mode-trigger">
             ⚔️ Battle Simulation
         </button>
@@ -89,36 +92,127 @@
         </div>
     </div>
 
-    <div id="battle-modal" class="modal-overlay">
-        <div class="modal-content battle-theme">
-            <span class="close-button" id="close-battle">&times;</span>
-            <h2 class="orbitron-font">Combat Simulation</h2>
-            
-            <div style="margin-bottom: 15px;">
-                <label for="battle-playlist-select" style="color: #ccc; margin-right: 10px;">Select Team:</label>
-                <select id="battle-playlist-select" style="padding: 5px; background: #000; color: #5eff5e; border: 1px solid #5eff5e; border-radius: 5px; font-family: 'Orbitron';">
-                    <option value="">Loading Playlists...</option>
-                </select>
-            </div>
-
-            <div id="battle-stage" class="battle-stage">
-                <div class="team-display">
-                    <h3>Your Team</h3>
-                    <ul id="battle-team-list"></ul>
+  <div id="battle-modal" class="modal-overlay">
+    <div class="modal-content battle-theme">
+        <span class="close-button" id="close-battle">&times;</span>
+        <h2 class="orbitron-font glow-text">COMBAT SIMULATION</h2>
+        
+        <div id="battle-mode-select" class="battle-step">
+            <div class="mode-cards">
+                <div class="mode-card" id="select-random-mode">
+                    <h3>🎲 Quick Play</h3>
+                    <p>Random Alien vs Random Villain.</p>
                 </div>
-                <div class="vs-divider">VS</div>
-                <div class="villain-display">
-                    <h3 id="battle-villain-name">???</h3>
-                    <div id="battle-loader" class="loader" style="display:none;"></div>
+                <div class="mode-card" id="select-custom-mode">
+                    <h3>⚙️ Custom Match</h3>
+                    <p>Select Fighters & Review Stats.</p>
                 </div>
             </div>
-
-            <div id="battle-log" class="battle-log">
-                <p>Initialize simulation to begin...</p>
-            </div>
-
-            <button id="start-battle-btn" class="action-btn">SIMULATE BATTLE</button>
         </div>
+
+        <div id="battle-custom-setup" class="battle-step" style="display: none;">
+            <div class="setup-grid">
+                <div class="setup-col">
+                    <h3 style="color: var(--accent-green);">HERO</h3>
+                    <label>Select Playlist</label>
+                    <select id="custom-playlist-select" class="cyber-select"></select>
+                    
+                    <label>Select Alien</label>
+                    <select id="custom-hero-select" class="cyber-select">
+                        <option>Select Playlist First</option>
+                    </select>
+                    
+                    <div class="preview-box">
+                        <img id="preview-hero-img" src="images/omnitrix.png">
+                    </div>
+
+                    <div id="hero-stats" class="stats-box">
+                        <p><strong>Species:</strong> <span id="hero-species-text">-</span></p>
+                        <p><strong>Powers:</strong></p>
+                        <ul id="hero-powers-list"></ul>
+                    </div>
+                </div>
+
+                <div class="setup-vs">VS</div>
+
+                <div class="setup-col">
+                    <h3 style="color: #ff3333;">VILLAIN</h3>
+                    <label>Select Opponent</label>
+                    <select id="custom-villain-select" class="cyber-select">
+                        <option value="Vilgax">Vilgax</option>
+                        <option value="Malware">Malware</option>
+                        <option value="Kevin 11">Kevin 11</option>
+                        <option value="Highbreed">Highbreed</option>
+                        <option value="Zs'Skayr">Zs'Skayr</option>
+                        <option value="Dr. Animo">Dr. Animo</option>
+                    </select>
+
+                    <div class="preview-box">
+                        <img id="preview-villain-img" src="images/vilgax.png">
+                    </div>
+
+                    <div id="villain-stats" class="stats-box">
+                        <p id="villain-desc-text">Conqueror of 10 worlds.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="setup-actions">
+                <button id="back-to-mode-btn" class="secondary-btn">Back</button>
+                <button id="start-custom-battle-btn" class="action-btn">ENGAGE</button>
+            </div>
+        </div>
+
+        <div id="battle-loader" class="loader-container" style="display:none;">
+            <p>MATCHING DNA SIGNATURES...</p>
+            <div class="loader"></div>
+        </div>
+
+        <div id="battle-arena" style="display: none;">
+            <div class="fighters-container">
+                <div class="fighter-card hero">
+                    <div class="health-bar-container">
+                        <div id="hero-health" class="health-fill" style="width: 100%;"></div>
+                    </div>
+                    <div class="image-box">
+                        <img id="battle-hero-img" src="images/omnitrix.png" alt="Hero">
+                        <div id="hero-damage-text" class="damage-popup"></div>
+                    </div>
+                    <h3 id="battle-hero-name">HERO</h3>
+                </div>
+
+                <div class="vs-badge">VS</div>
+
+                <div class="fighter-card villain">
+                    <div class="health-bar-container">
+                        <div id="villain-health" class="health-fill" style="width: 100%;"></div>
+                    </div>
+                    <div class="image-box">
+                        <img id="battle-villain-img" src="images/vilgax.png" alt="Villain">
+                        <div id="villain-damage-text" class="damage-popup"></div>
+                    </div>
+                    <h3 id="battle-villain-name">VILLAIN</h3>
+                </div>
+            </div>
+
+            <div id="battle-console" class="battle-console">
+                <p class="console-text" id="battle-message">Waiting for input...</p>
+            </div>
+
+            <button id="reset-battle-btn" class="action-btn" style="display: none;">NEW SIMULATION</button>
+        </div>
+    </div>
+</div>
+
+
+    <div id="theme-picker" class="theme-picker">
+        <div class="theme-toggle-btn" onclick="document.getElementById('theme-picker').classList.toggle('active')">
+            ⚙️
+        </div>
+        <div class="color-btn" style="background: #22d3ee;" onclick="setTheme('default')" title="Ben 10 (Green/Cyan)"></div>
+        <div class="color-btn" style="background: #ff3333;" onclick="setTheme('theme-red')" title="Albedo (Red)"></div>
+        <div class="color-btn" style="background: #3388ff;" onclick="setTheme('theme-blue')" title="Ben 23 (Blue)"></div>
+        <div class="color-btn" style="background: #d633ff;" onclick="setTheme('theme-purple')" title="Gwen (Purple)"></div>
     </div>
 
     <div id="toast-notification" class="toast"></div>

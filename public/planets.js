@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- DOM Elements ---
     const planetContainer = document.getElementById('planet-container');
     const searchBar = document.getElementById('search-bar');
     const modal = document.getElementById('planet-modal');
@@ -15,14 +14,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const playlistListContainer = document.getElementById('playlist-list-container');
     const playlistLoader = document.getElementById('playlist-loader');
 
-    // --- State Variables ---
     let currentPage = 1;
     let searchTimeout;
     let toastTimeout;
     let isLoading = false;
     let pendingItemToAdd = null;
 
-    // --- Helper: Toast ---
     const showToast = (message, isError = false) => {
         if (!toastNotification) return;
         toastNotification.textContent = message;
@@ -31,7 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
         toastTimeout = setTimeout(() => toastNotification.classList.remove('show'), 3000); 
     };
 
-    // --- Feature: Playlist Selection ---
     const fetchUserPlaylists = async () => {
         const token = localStorage.getItem('token');
         if (!token) return [];
@@ -64,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         playlists.forEach(pl => {
             const btn = document.createElement('button');
-            btn.className = 'filter-btn'; // Reuse style
+            btn.className = 'filter-btn';
             btn.style.width = '100%';
             btn.style.marginBottom = '10px';
             btn.textContent = pl.name;
@@ -97,7 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     closePlaylistSelect.addEventListener('click', () => playlistSelectModal.classList.remove('active'));
 
-    // --- Core: Fetch & Display ---
     const fetchPlanets = async (page, shouldAppend = false) => {
         if (isLoading) return;
         isLoading = true;
@@ -147,7 +142,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, { rootMargin: '100px' });
 
-    // --- Core: Autocomplete ---
     const showSuggestions = (results) => {
         suggestionsBox.innerHTML = '';
         if (results.length === 0) {
@@ -188,7 +182,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!e.target.closest('.search-container')) suggestionsBox.style.display = 'none';
     });
 
-    // --- Modal Logic ---
     const showPlanetDetails = (planet) => {
         document.getElementById('modal-planet-img').src = planet.image || 'images/placeholder.png';
         document.getElementById('modal-planet-name').innerText = planet.name;

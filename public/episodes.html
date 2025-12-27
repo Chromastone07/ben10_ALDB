@@ -37,10 +37,20 @@
         <div id="episodes-grid" class="episodes-grid">
             </div>
 
-        <div id="load-more-container" class="load-more-container">
-            <button id="load-more-episodes" class="load-more-btn">Load More</button>
+        <div id="scroll-sentinel" class="load-more-container">
+            <div class="loader" style="display: none;"></div>
         </div>
     </main>
+
+    <div id="theme-picker" class="theme-picker">
+        <div class="theme-toggle-btn" onclick="document.getElementById('theme-picker').classList.toggle('active')">
+            ⚙️
+        </div>
+        <div class="color-btn" style="background: #22d3ee;" onclick="setTheme('default')" title="Ben 10"></div>
+        <div class="color-btn" style="background: #ff3333;" onclick="setTheme('theme-red')" title="Albedo"></div>
+        <div class="color-btn" style="background: #3388ff;" onclick="setTheme('theme-blue')" title="Ben 23"></div>
+        <div class="color-btn" style="background: #d633ff;" onclick="setTheme('theme-purple')" title="Gwen"></div>
+    </div>
 
     <div id="toast-notification" class="toast"></div>
     <script src="auth.js"></script>

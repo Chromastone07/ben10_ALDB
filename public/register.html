@@ -22,10 +22,13 @@
                 <label for="email">Email</label>
                 <input type="email" id="email" required>
             </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" required>
-            </div>
+          <div class="input-group">
+    <label for="password">Password</label>
+    <div class="password-container">
+        <input type="password" id="password" placeholder="Create Password" required>
+        <span class="toggle-password" onclick="togglePassword('password', this)">👁️</span>
+    </div>
+</div>
             <button type="submit" class="submit-btn">Register</button>
             <p class="auth-link">Already have an account? <a href="login.html">Login here</a></p>
         </form>

@@ -1,5 +1,3 @@
-
-
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
@@ -52,15 +50,29 @@ router.get('/:type', auth, async (req, res) => {
 
         if (!user) return res.status(404).json({ msg: 'User not found' });
         
-        // Remove any null items (in case an alien was deleted from DB but exists in playlist)
+        // Remove any null items (in case an item was deleted from DB but exists in playlist)
         const playlists = user[modelInfo.playlistField].map(pl => ({
             ...pl.toObject(),
             items: pl.items.filter(item => item !== null)
         }));
 
+        // --- FIX START: Find and send the active playlist items ---
+        let activePlaylistItems = [];
+        const activeId = user[modelInfo.activeField];
+
+        if (activeId && playlists.length > 0) {
+            // Find the playlist object that matches the active ID
+            const activePlaylist = playlists.find(p => p._id.toString() === activeId.toString());
+            if (activePlaylist) {
+                activePlaylistItems = activePlaylist.items;
+            }
+        }
+        // --- FIX END ---
+
         res.json({
             playlists: playlists || [],
-            activePlaylistId: user[modelInfo.activeField]
+            activePlaylistId: activeId,
+            activePlaylistItems: activePlaylistItems // <--- This was missing!
         });
 
     } catch (err) {
@@ -83,6 +95,7 @@ router.post('/:type', auth, async (req, res) => {
         const newPlaylist = { name, items: [] };
         user[modelInfo.playlistField].push(newPlaylist);
 
+        // If this is the first playlist, automatically make it active
         if (user[modelInfo.playlistField].length === 1) {
             user[modelInfo.activeField] = user[modelInfo.playlistField][0]._id;
         }
@@ -161,6 +174,8 @@ router.delete('/:type/:playlistId', auth, async (req, res) => {
         if (!modelInfo) return res.status(400).json({ msg: 'Invalid item type' });
 
         const user = await User.findById(req.user.id);
+        
+        // If deleting the active playlist, reset active field to null
         if (user[modelInfo.activeField] && user[modelInfo.activeField].equals(playlistId)) {
             user[modelInfo.activeField] = null;
         }
