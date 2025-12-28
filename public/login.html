@@ -3,35 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Ben 10 Database</title>
+    <title>Plumber Access - Login</title>
     <link rel="stylesheet" href="style.css">
-    <!-- <link rel="stylesheet" href="responsive.css"> -->
-    <link rel="stylesheet" href="auth.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+    .main-nav {
+        display: flex;
+        align-items: center;      
+        gap: 30px;               
+    }
+
+    .main-nav .nav-link {
+        display: inline-flex;     
+        align-items: center;      
+        height: 100%;            
+        margin-left: 0 !important; 
+        line-height: 1;           
+        padding: 10px 0;        
+    }
+
+    .main-nav .nav-link:first-child {
+        color: var(--text-secondary);
+    }
+    .main-nav .nav-link:first-child:hover {
+        color: #fff;
+    }
+</style>
+    <script src="audio.js"></script>
 </head>
-<body>
-    
-    <div class="auth-container">
-        <form id="login-form" class="auth-form">
-            <h2>Plumber Log In</h2>
-            <div id="message" class="message"></div>
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" required>
+<body class="auth-body">
+
+    <nav class="navbar">
+        <a href="index.html" class="nav-logo">
+            <img src="images/omnitrix.png" alt="Logo"> PLUMBER OS
+        </a>
+        <div class="main-nav">
+             <a href="index.html" class="nav-link">❮ Back to Gateway</a>
+             <a href="register.html" class="nav-link">Register</a>
+        </div>
+    </nav>
+
+    <main class="auth-wrapper">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h2>IDENTIFICATION REQUIRED</h2>
+                <p>Plumber Level Access Only</p>
             </div>
-           <div class="input-group">
-    <label for="password">Password</label>
-    <div class="password-container">
-        <input type="password" id="password" placeholder="Create Password" required>
-        <span class="toggle-password" onclick="togglePassword('password', this)">👁️</span>
-    </div>
-</div>
-            <button type="submit" class="submit-btn">Log In</button>
-            <p class="auth-link" style="margin-top: 1rem; text-align: right;"><a href="forgot-password.html">Forgot Password?</a></p>
             
-            <p class="auth-link">No account? <a href="register.html">Register here</a></p>
-        </form>
-    </div>
-    <script src="login.js"></script>
-</body>
+            <form id="login-form">
+                <div class="input-group">
+                    <label>PLUMBER ID (EMAIL)</label>
+                    <input type="email" id="email" required placeholder="Enter authorized email...">
+                </div>
+                
+                <div class="input-group">
+                    <label>PASSCODE</label>
+                    <div class="password-container">
+                        <input type="password" id="password" required placeholder="Enter security code...">
+                        <span class="toggle-password" onclick="togglePassword('password', this)">👁️</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="auth-btn">
+                    INITIATE LOGIN
+                </button>
+            </form>
+            
+            <div class="auth-footer">
+                <p>New Recruit? <a href="register.html">Request Clearance</a></p>
+            </div>
+        </div>
+    </main>
+
+    <script src="auth.js"></script>
+    <script src="login.js"></script> </body>
 </html>

@@ -3,134 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plumber Profile - Ben 10</title>
+    <title>Plumber Profile | Omnitrix OS</title>
     
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="responsive.css">
     
-    <link rel="stylesheet" href="profile.css">
+    <link rel="stylesheet" href="profile.css"> 
     
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    
-    <header>
-        <nav class="navbar">
-            <a href="aliens.html" class="nav-logo">Alien Database</a>
-            <div class="main-nav">
-                <a href="aliens.html">Aliens</a>
-                <a href="universe.html">Universe</a>
-                <a href="characters.html">world</a>
-                <a href="planets.html">Planets</a>
-                <a href="episodes.html">Episodes</a>
-                <a href="my-omnitrix.html">My Omnitrix</a>
-                <a href="profile.html" class="active">Profile</a>
-               
-                <button id="logout-btn" class="nav-btn logout">Logout</button>
-            </div>
-        </nav>
-    </header>
-
-    <div id="toast-container" class="toast-container"></div>
+    <nav class="navbar">
+        <a href="index.html" class="nav-logo">
+            <img src="images/omnitrix.png" alt="Logo"> Alien Database
+        </a>
+        <div id="main-nav" class="main-nav"></div>
+    </nav>
 
     <main class="profile-container">
-        <h1 class="page-title">Plumber Profile</h1>
-
-        <div class="profile-grid">
-            <div class="profile-card badge-card">
-                <h3>Plumber Badge</h3>
-                <div class="badge-display">
-                    <div class="badge-ring">
-                        <img id="profile-badge" src="images/omnitrix.png" onerror="this.src='images/omnitrix.png'" alt="Rank Badge">
-                    </div>
-                    <div class="badge-info">
-                        <h2 id="profile-username">Loading...</h2>
-                        <p id="profile-rank" class="rank-text">DETECTING...</p>
-                    </div>
-                </div>
-
-                <div class="plumber-details">
-                    <div class="detail-row">
-                        <span class="label">Email:</span>
-                        <span id="profile-email" class="value">...</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="label">Member Since:</span>
-                        <span id="profile-joined" class="value">...</span>
-                    </div>
-                </div>
+        
+        <div class="profile-header">
+            <div class="avatar-wrapper">
+                <img id="profile-avatar" src="images/omnitrix.png" alt="User Avatar">
+                <button class="avatar-edit-btn" onclick="openAvatarModal()" title="Change ID Image">✎</button>
             </div>
-
-            <div class="profile-card settings-card">
-                <h3>Account Settings</h3>
-                <div class="settings-actions">
-<button id="system-audio-btn" class="action-btn" style="display: flex; justify-content: space-between; align-items: center;">
-            System Audio
-            <span id="audio-status-text">ON</span>
-        </button>
-
-                    <button id="edit-username-btn" class="action-btn">Edit Username</button>
-                    <button id="change-password-btn" class="action-btn">Change Password</button>
-                    <button id="delete-account-btn" class="delete-btn">Delete Account</button>
-                </div>
+            <div class="profile-info">
+                <h1 id="profile-username">LOADING...</h1>
+                <p id="profile-email">Accessing Database...</p>
+                <div class="rank-badge" id="profile-rank-badge">RECRUIT</div>
+                <p class="join-date">Joined: <span id="profile-joined">-</span></p>
             </div>
         </div>
+
+        <div class="rank-section">
+            <div class="rank-header">
+                <span id="current-rank-name">Recruit</span>
+                <span id="next-rank-name">Next: Plumber</span>
+            </div>
+            <div class="progress-container">
+                <div id="rank-progress-bar" class="progress-fill" style="width: 0%;"></div>
+            </div>
+            <p class="xp-text" id="xp-text">Time Active: 0 mins</p>
+        </div>
+
+        <div class="badges-section">
+            <h2 class="section-title">ACHIEVEMENTS</h2>
+            <div id="badges-grid" class="badges-grid">
+                <p style="color:#666;">Loading achievements...</p>
+            </div>
+        </div>
+
+        <div class="settings-grid">
+            <div class="setting-card" id="edit-username-btn">
+                <h3>📝 Edit Profile</h3>
+                <p>Update your codename.</p>
+            </div>
+            <div class="setting-card" id="change-password-btn">
+                <h3>🔒 Security</h3>
+                <p>Change access password.</p>
+            </div>
+            <div class="setting-card" id="system-audio-btn">
+                <h3>🔊 System Audio</h3>
+                <p>Status: <span id="audio-status-text">ON</span></p>
+            </div>
+            <div class="setting-card danger" id="delete-account-btn">
+                <h3>⚠️ Revoke License</h3>
+                <p>Delete account permanently.</p>
+            </div>
+        </div>
+
     </main>
 
-    <div id="edit-profile-modal" class="modal-overlay">
-        <div class="modal-content small-modal">
-            <span class="close-button">&times;</span>
-            <h3>Edit Profile</h3>
-            <div class="input-group">
-                <input type="text" id="edit-username-input" placeholder="Enter new username">
+    <div id="avatar-modal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeAvatarModal()">&times;</span>
+            <h3>SELECT ID IMAGE</h3>
+            <div class="avatar-grid">
+                <img src="images/omnitrix.png" class="avatar-option" onclick="selectAvatar('images/omnitrix.png')">
+                <img src="images/avatar1.png" class="avatar-option" onclick="selectAvatar('images/avatar1.png')">
+                <img src="images/avatar2.png" class="avatar-option" onclick="selectAvatar('images/avatar2.png')">
+                <img src="images/avatar3.png" class="avatar-option" onclick="selectAvatar('images/avatar3.png')">
+                <img src="images/avatar4.png" class="avatar-option" onclick="selectAvatar('images/avatar4.png')">
+                <img src="images/grey_matter.png" class="avatar-option" onclick="selectAvatar('images/grey_matter.png')">
             </div>
-            <button id="confirm-edit-btn" class="action-btn">Save Changes</button>
+        </div>
+    </div>
+
+    <div id="edit-profile-modal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal('edit-profile-modal')">&times;</span>
+            <h3>Edit Identity</h3>
+            <input type="text" id="edit-username-input" class="cyber-input" placeholder="New Username">
+            <button id="confirm-edit-btn" class="cyber-btn">Update</button>
         </div>
     </div>
 
     <div id="password-modal" class="modal-overlay">
-        <div class="modal-content small-modal">
-            <span class="close-button">&times;</span>
-            <h3>Change Password</h3>
-            <div class="input-group">
-                <div class="password-container">
-                    <input type="password" id="current-pass-input" placeholder="Current Password">
-                    <span class="toggle-password" onclick="togglePassword('current-pass-input', this)">👁️</span>
-                </div>
-            </div>
-            <div class="input-group">
-                <div class="password-container">
-                    <input type="password" id="new-pass-input" placeholder="New Password (min 6 chars)">
-                    <span class="toggle-password" onclick="togglePassword('new-pass-input', this)">👁️</span>
-                </div>
-            </div>
-            <button id="confirm-password-btn" class="action-btn">Update Password</button>
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal('password-modal')">&times;</span>
+            <h3>Security Update</h3>
+            <input type="password" id="current-pass-input" class="cyber-input" placeholder="Current Password">
+            <input type="password" id="new-pass-input" class="cyber-input" placeholder="New Password">
+            <button id="confirm-password-btn" class="cyber-btn">Change Password</button>
         </div>
     </div>
 
     <div id="delete-modal" class="modal-overlay">
-        <div class="modal-content small-modal" style="border-color: #ff4444;">
-            <span class="close-button">&times;</span>
-            <h3 style="color: #ff4444;">⚠ DELETE ACCOUNT</h3>
-            <p style="color: #ccc; margin-bottom: 20px;">
-                Are you sure? This will delete your profile and playlists permanently.
-            </p>
-            <button id="confirm-delete-btn" class="delete-btn" style="width: 100%;">Yes, Delete My Account</button>
+        <div class="modal-content danger-theme">
+            <span class="close-button" onclick="closeModal('delete-modal')">&times;</span>
+            <h3 style="color:red;">⚠️ WARNING</h3>
+            <p>This action cannot be undone. All alien data will be lost.</p>
+            <button id="confirm-delete-btn" class="cyber-btn danger-btn">CONFIRM DELETION</button>
         </div>
     </div>
 
+    <div id="toast-container"></div>
+
     <script src="audio.js"></script>
-<script src="profile.js"></script> 
-<!-- <script>
-    // Simple logic to hook up the button
-    const audioBtn = document.getElementById('audio-toggle');
-    if(audioBtn) {
-        audioBtn.addEventListener('click', () => {
-            const isMuted = audioSystem.toggleMute();
-            audioBtn.textContent = isMuted ? '🔇' : '🔊';
-        });
-        // Set initial icon
-        audioBtn.textContent = localStorage.getItem('plumber_muted') === 'true' ? '🔇' : '🔊';
-    }
-</script> -->
+    <script src="auth.js"></script>
+    <script src="profile.js"></script>
 </body>
 </html>

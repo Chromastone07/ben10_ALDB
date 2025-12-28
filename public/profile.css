@@ -1,26 +1,9 @@
-/* =========================================
-   1. GLOBAL & NAVBAR OVERRIDES
-   ========================================= */
+
 body {
-    background-color: #050a10; /* Deep space background */
-    /* Ensure the background image from style.css still shows through slightly if set there */
+    background-color: #050a10; 
 }
 
-/* Force Navbar to look correct on Profile Page */
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 40px;
-    background: rgba(0, 0, 0, 0.95);
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1000;
-    border-bottom: 2px solid var(--accent-cyan);
-    box-shadow: 0 0 15px rgba(34, 211, 238, 0.2);
-}
+
 
 .nav-logo {
     color: #fff;
@@ -81,12 +64,9 @@ body {
     box-shadow: 0 0 15px rgba(255, 68, 68, 0.6);
 }
 
-/* =========================================
-   2. PROFILE CONTAINER & GRID
-   ========================================= */
 .profile-container {
     max-width: 1100px;
-    margin: 100px auto 40px; /* Top margin accounts for fixed navbar */
+    margin: 100px auto 40px;
     padding: 20px;
 }
 
@@ -103,19 +83,16 @@ body {
 
 .profile-grid {
     display: grid;
-    grid-template-columns: 1fr 1.2fr; /* Right side slightly wider */
+    grid-template-columns: 1fr 1.2fr; 
     gap: 30px;
     align-items: start;
 }
 
-/* Responsive: Stack on mobile */
 @media (max-width: 850px) {
     .profile-grid { grid-template-columns: 1fr; }
 }
 
-/* =========================================
-   3. GLASSMORPHISM CARDS
-   ========================================= */
+
 .profile-card {
     background: linear-gradient(145deg, rgba(10, 20, 30, 0.95), rgba(5, 10, 15, 0.98));
     border: 1px solid rgba(34, 211, 238, 0.3);
@@ -126,7 +103,6 @@ body {
     overflow: hidden;
 }
 
-/* Add a subtle glow line at the top */
 .profile-card::before {
     content: '';
     position: absolute;
@@ -137,9 +113,7 @@ body {
     background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
 }
 
-/* =========================================
-   4. LEFT COLUMN: BADGE CARD
-   ========================================= */
+
 .badge-card {
     display: flex;
     flex-direction: column;
@@ -153,7 +127,7 @@ body {
     border-radius: 50%;
     border: 3px solid var(--accent-green);
     box-shadow: 0 0 25px rgba(0, 255, 0, 0.2);
-    padding: 5px; /* Gap between ring and image */
+    padding: 5px; 
     margin-bottom: 20px;
     background: transparent;
     transition: all 0.4s ease;
@@ -161,7 +135,6 @@ body {
 }
 
 .badge-ring::after {
-    /* Rotating glow effect */
     content: '';
     position: absolute;
     inset: -5px;
@@ -225,9 +198,7 @@ body {
 .label { color: #888; font-size: 0.9rem; }
 .value { color: #fff; font-family: 'Orbitron', sans-serif; letter-spacing: 1px; font-size: 0.95rem; }
 
-/* =========================================
-   5. RIGHT COLUMN: SETTINGS CARD
-   ========================================= */
+
 .settings-card h3 {
     color: var(--accent-cyan);
     margin-top: 0;
@@ -245,7 +216,6 @@ body {
     gap: 20px;
 }
 
-/* Base Button Style */
 .action-btn, .delete-btn {
     position: relative;
     padding: 15px;
@@ -260,11 +230,9 @@ body {
     text-align: center;
     border: none;
     outline: none;
-    /* Slanted Edges */
     clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
 }
 
-/* Cyan Action Button */
 .action-btn {
     background: linear-gradient(135deg, #0099cc, #22d3ee);
     color: #000;
@@ -276,7 +244,6 @@ body {
     background: linear-gradient(135deg, #22d3ee, #00ffff);
 }
 
-/* Red Delete Button */
 .delete-btn {
     background: linear-gradient(135deg, #990000, #ff4444);
     color: #fff;
@@ -289,9 +256,7 @@ body {
     background: linear-gradient(135deg, #ff4444, #ff6666);
 }
 
-/* =========================================
-   6. SMALL MODALS (Edit/Password/Delete)
-   ========================================= */
+
 .small-modal {
     width: 90%;
     max-width: 420px;
@@ -348,14 +313,13 @@ body {
 
 .small-modal .close-button:hover { color: #fff; text-shadow: 0 0 5px #fff; }
 
-/* Password Eye Icon */
 .password-container {
     position: relative;
     width: 100%;
 }
 
 .password-container input {
-    padding-right: 40px; /* Space for icon */
+    padding-right: 40px; 
 }
 
 .toggle-password {
@@ -372,12 +336,10 @@ body {
 
 .toggle-password:hover { opacity: 1; }
 
-/* =========================================
-   7. TOAST NOTIFICATIONS
-   ========================================= */
+
 .toast-container {
     position: fixed;
-    top: 90px; /* Below navbar */
+    top: 90px; 
     right: 30px;
     z-index: 9999;
     display: flex;
@@ -399,7 +361,7 @@ body {
     gap: 15px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
     transform: translateX(120%);
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy enter */
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
     backdrop-filter: blur(5px);
 }
 
@@ -411,7 +373,6 @@ body {
     font-size: 1.2rem; 
 }
 
-/* Audio Toggle Button */
 #audio-toggle {
     color: var(--text-secondary);
     transition: 0.3s;
@@ -423,4 +384,296 @@ body {
     color: var(--accent-cyan);
     text-shadow: 0 0 10px var(--glow-cyan);
     transform: scale(1.1);
+}
+
+
+
+.profile-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+    padding-bottom: 100px;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    background: rgba(0, 20, 0, 0.8);
+    border: 1px solid #00ff00;
+    padding: 30px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.1);
+}
+
+.avatar-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+}
+
+#profile-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 3px solid #00ff00;
+    object-fit: cover;
+    box-shadow: 0 0 15px #00ff00;
+}
+
+.avatar-edit-btn {
+    position: absolute;
+    bottom: 0; right: 0;
+    background: #00ff00;
+    border: 2px solid #000;
+    color: #000;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex; justify-content: center; align-items: center;
+    transition: transform 0.2s;
+}
+.avatar-edit-btn:hover { 
+    background: #fff; 
+    transform: scale(1.1);
+}
+
+.profile-info h1 { margin: 0; color: #fff; font-size: 2rem; text-transform: uppercase; letter-spacing: 2px; }
+.profile-info p { color: #888; margin: 5px 0; }
+.join-date { font-size: 0.8rem; color: #666 !important; }
+
+.rank-badge {
+    display: inline-block;
+    background: #00ff00;
+    color: #000;
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-weight: bold;
+    font-size: 0.8rem;
+    margin-top: 5px;
+    text-transform: uppercase;
+    box-shadow: 0 0 10px #00ff00;
+}
+
+.rank-section {
+    background: rgba(0, 0, 0, 0.6);
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #333;
+    margin-bottom: 30px;
+}
+
+.rank-header {
+    display: flex; justify-content: space-between;
+    color: #00ff00; margin-bottom: 10px;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.progress-container {
+    width: 100%; height: 20px;
+    background: #111; border-radius: 10px;
+    overflow: hidden; border: 1px solid #333;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #00ff00, #ccffcc);
+    box-shadow: 0 0 15px #00ff00;
+    transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1); 
+}
+
+.xp-text {
+    text-align: right; color: #777; font-size: 0.8rem; margin-top: 5px;
+}
+
+.badges-section { margin-bottom: 30px; }
+.section-title { 
+    color: #fff; 
+    font-family: 'Orbitron', sans-serif; 
+    margin-bottom: 15px; 
+    border-bottom: 2px solid #333; 
+    padding-bottom: 10px; 
+}
+
+.badges-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 15px;
+}
+
+.badge-card {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #333;
+    padding: 15px; text-align: center;
+    border-radius: 8px; opacity: 0.5; filter: grayscale(100%);
+    transition: 0.3s;
+}
+
+.badge-card.unlocked {
+    opacity: 1; filter: grayscale(0%);
+    border-color: #00ff00;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.1);
+    background: rgba(0, 50, 0, 0.3);
+}
+.badge-card:hover { transform: translateY(-5px); }
+
+.badge-icon { font-size: 2.5rem; display: block; margin-bottom: 10px; }
+.badge-name { color: #fff; font-size: 0.8rem; font-weight: bold; display: block; }
+
+.settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.setting-card {
+    background: #0d1b2a;
+    border: 1px solid #1b263b;
+    padding: 20px; border-radius: 10px;
+    cursor: pointer; transition: 0.3s;
+    position: relative; overflow: hidden;
+}
+.setting-card:hover { border-color: #00ff00; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+.setting-card h3 { color: #00ff00; margin-bottom: 5px; font-size: 1.1rem; }
+.setting-card p { color: #778da9; font-size: 0.9rem; margin: 0; }
+
+.setting-card.danger:hover { border-color: red; box-shadow: 0 0 15px rgba(255,0,0,0.2); }
+.setting-card.danger h3 { color: red; }
+
+.avatar-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px; margin-top: 20px;
+}
+.avatar-option {
+    width: 90px; height: 90px;
+    border-radius: 50%; border: 2px solid transparent;
+    cursor: pointer; transition: 0.2s; object-fit: cover;
+    background: #000;
+}
+.avatar-option:hover { transform: scale(1.1); border-color: #00ff00; box-shadow: 0 0 10px #00ff00; }
+
+
+
+
+
+.modal-content {
+    background: #0d1b2a;
+    border: 1px solid #00ff00;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+    border-radius: 12px;
+    padding: 30px;
+    width: 90%;
+    max-width: 400px; 
+    text-align: center;
+    position: relative;
+    color: #fff;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    color: #00ff00;
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    font-size: 1.4rem;
+    text-transform: uppercase;
+    border-bottom: 1px solid #333;
+    padding-bottom: 10px;
+}
+
+.modal-content input {
+    background: #000 !important;
+    border: 1px solid #333 !important;
+    color: #00ff00 !important;
+    padding: 12px;
+    border-radius: 6px;
+    width: 100%; 
+    font-family: 'Orbitron', sans-serif; 
+    font-size: 1rem;
+    outline: none;
+    transition: 0.3s;
+    box-sizing: border-box; 
+}
+
+.modal-content input:focus {
+    border-color: #00ff00 !important;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+}
+
+.modal-content input::placeholder {
+    color: #004400; 
+}
+
+.modal-content button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    background: #00ff00;
+    color: #000;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Orbitron', sans-serif;
+    text-transform: uppercase;
+    transition: 0.2s;
+}
+
+.modal-content button:hover {
+    background: #fff;
+    box-shadow: 0 0 15px #fff;
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 1.5rem;
+    color: #666;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.close-button:hover { color: #fff; }
+
+.modal-content.danger-theme {
+    border-color: #ff0000;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.2);
+}
+.modal-content.danger-theme h3 {
+    color: #ff0000;
+    border-bottom-color: #550000;
+}
+.danger-btn {
+    background: #550000 !important;
+    color: #fff !important;
+    border: 1px solid #ff0000 !important;
+}
+.danger-btn:hover {
+    background: #ff0000 !important;
+    box-shadow: 0 0 15px #ff0000 !important;
+}
+
+.navbar {
+    display: flex;
+    align-items: center; 
+    height: 70px; 
+}
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px; 
+    height: 100%;
+}
+
+.nav-logo img {
+    height: 40px; 
+    width: auto;
 }

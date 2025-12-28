@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const Alien = require('../models/alien');
 
-// GET all aliens (with pagination & search)
 router.get('/', async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -30,13 +29,11 @@ router.get('/', async (req, res) => {
     }
 });
 
-// GET Search Aliens (Autocomplete)
-// GET Search Aliens (Autocomplete & Linking)
+
 router.get('/search/:term', async (req, res) => {
     try {
         const term = req.params.term;
         
-        // Search in Name OR Species
         const aliens = await Alien.find({
             $or: [
                 { name: { $regex: term, $options: 'i' } },
@@ -51,14 +48,11 @@ router.get('/search/:term', async (req, res) => {
     }
 });
 
-// --- NEW FEATURE: RANDOM ALIEN (MISTRANSFORMATION) ---
-// This allows the "Roulette" button to fetch a random alien from the DB
 router.get('/random', async (req, res) => {
     try {
         const count = await Alien.countDocuments();
         const random = Math.floor(Math.random() * count);
         
-        // Skip 'random' number of documents to get one
         const alien = await Alien.findOne().skip(random);
         
         if (!alien) {
@@ -72,8 +66,7 @@ router.get('/random', async (req, res) => {
     }
 });
 
-// GET single alien by ID
-// (Must come AFTER /random, otherwise "random" is treated as an ID)
+
 router.get('/:id', async (req, res) => {
     try {
         const alien = await Alien.findById(req.params.id);

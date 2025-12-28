@@ -1,8 +1,4 @@
-/* =========================================
-   MULTIVERSE GATEWAY STYLES (main.css)
-   ========================================= */
 
-/* Import Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600&family=Orbitron:wght@400;700;900&display=swap');
 
 :root {
@@ -49,14 +45,12 @@
     text-transform: uppercase;
 }
 
-/* The Grid */
 .universe-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 30px;
 }
 
-/* Universe Cards */
 .universe-card {
     position: relative;
     height: 350px;
@@ -72,7 +66,6 @@
     justify-content: flex-end;
 }
 
-/* Background Gradients */
 .ben10-theme .card-bg { background: linear-gradient(to top, rgba(0,255,65,0.15), transparent); }
 .marvel-theme .card-bg { background: linear-gradient(to top, rgba(255,0,0,0.15), transparent); }
 .dc-theme .card-bg { background: linear-gradient(to top, rgba(0,0,255,0.15), transparent); }
@@ -86,7 +79,6 @@
 
 .universe-card:hover .card-bg { transform: scale(1.1); opacity: 0.9; }
 
-/* Content */
 .card-content {
     position: relative;
     padding: 30px;
@@ -108,7 +100,6 @@
     margin-bottom: 15px;
 }
 
-/* Status Indicators */
 .status {
     font-size: 0.7rem;
     font-weight: bold;
@@ -119,7 +110,7 @@
 .status.active { background: var(--accent-green); color: #000; box-shadow: 0 0 10px var(--accent-green); }
 .status.locked { background: #333; color: #777; border: 1px solid #555; }
 
-/* Hover Border Effects */
+
 .universe-card.ben10-theme:hover { border-color: var(--accent-green); box-shadow: 0 0 30px rgba(0,255,65,0.2); }
 .universe-card.marvel-theme:hover { border-color: #ff3333; box-shadow: 0 0 30px rgba(255,0,0,0.2); }
 .universe-card.dc-theme:hover { border-color: #3388ff; box-shadow: 0 0 30px rgba(0,68,255,0.2); }

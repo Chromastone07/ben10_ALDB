@@ -3,11 +3,9 @@ const router = express.Router();
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { OpenAI } = require('openai');
 
-// Initialize Clients
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// --- OFFLINE FALLBACK GENERATORS (The "Safety Net") ---
 
 function getOfflineBattle(heroName, villainName) {
     const actions = [
@@ -24,7 +22,6 @@ function getOfflineBattle(heroName, villainName) {
     let villainHp = 100;
 
     for(let i=1; i<=3; i++) {
-        // Random damage
         const dmgToHero = Math.floor(Math.random() * 30);
         const dmgToVillain = Math.floor(Math.random() * 35); 
         
@@ -38,7 +35,6 @@ function getOfflineBattle(heroName, villainName) {
         });
     }
 
-    // Determine Winner based on remaining HP
     const outcome = (villainHp <= 0 || heroHp > villainHp) ? "VICTORY" : "DEFEAT";
     
     return JSON.stringify({
@@ -67,16 +63,13 @@ function getOfflineChat() {
     return "The Sub-Energy transmission is down. I cannot access the Codon Stream right now. (AI Quota Exceeded)";
 }
 
-// --- SMART GENERATION FUNCTION ---
 async function generateWithFallback(prompt, type, contextData = null) {
-    // 1. Try Gemini
     try {
         const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" }); 
         const result = await model.generateContent(prompt);
         return result.response.text();
     } catch (geminiError) {
         console.warn(`Gemini Failed. Switching to OpenAI...`);
-        // 2. Try OpenAI
         try {
             const completion = await openai.chat.completions.create({
                 model: "gpt-3.5-turbo",
@@ -86,24 +79,17 @@ async function generateWithFallback(prompt, type, contextData = null) {
         } catch (openAiError) {
             console.error(`All AI Services Failed. Using Offline Mode.`);
             
-            // 3. Offline Mode
             if (type === 'battle') return getOfflineBattle(contextData.hero, contextData.villain);
-            // ... (other offline fallbacks) ...
             return "System Offline.";
         }
     }
 }
 
-// const cleanJSON = (text) => text.replace(/```json/g, '').replace(/```/g, '').trim();
-
-// --- HELPER: JSON CLEANER ---
 const cleanJSON = (text) => {
     return text.replace(/```json/g, '').replace(/```/g, '').trim();
 };
 
-// ================= ROUTES =================
 
-// 1. Details Route
 router.get('/details/:type/:name', async (req, res) => {
     try {
         const { type, name } = req.params;
@@ -115,7 +101,6 @@ router.get('/details/:type/:name', async (req, res) => {
             Do not include markdown or body tags.
         `;
 
-        // Pass context data for offline mode
         const htmlContent = await generateWithFallback(prompt, 'details', { name, type });
         res.send(htmlContent);
 
@@ -125,7 +110,6 @@ router.get('/details/:type/:name', async (req, res) => {
     }
 });
 
-// 2. Chat Route
 router.post('/', async (req, res) => {
     const userQuery = req.body.query;
     if (!userQuery) return res.status(400).json({ error: 'Query is required.' });
@@ -140,13 +124,11 @@ router.post('/', async (req, res) => {
     }
 });
 
-// 3. Battle Route
 router.post('/battle', async (req, res) => {
     let { team, customHero, customVillain } = req.body;
     
-    // Default logic: Pick random if custom not provided
     const heroName = customHero || (team && team.length > 0 ? team[Math.floor(Math.random() * team.length)] : "Ben 10");
-    const villainName = customVillain || "Vilgax"; // Default fallback if random fails
+    const villainName = customVillain || "Vilgax"; 
 
     try {
         const prompt = `

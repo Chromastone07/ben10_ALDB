@@ -181,8 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (term.length < 2) {
             suggestionsBox.style.display = 'none';
             if (term.length === 0) {
-                // filterNav.style.display = 'flex'; // Optional: Restore filters
-                // fetchAndDisplay(currentCategory, 1, false);
+               
             }
             return;
         }
@@ -217,22 +216,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, { rootMargin: '100px' });
 
-   // --- OPEN MODAL (With Scroll Freeze & All Features) ---
     const openModal = (char) => {
-        // 1. FREEZE BACKGROUND SCROLLING
         document.body.style.overflow = 'hidden'; 
 
         const detailCard = modal.querySelector('.detail-card');
         detailCard.classList.remove('ai-view');
 
-        // Populate Basic Info
         document.getElementById('modal-image').src = char.image || 'images/placeholder.png';
         document.getElementById('modal-name').textContent = char.name.toUpperCase();
         document.getElementById('modal-species').textContent = char.species || 'Unknown';
         document.getElementById('tab-personality').textContent = char.personality || 'No information available.';
         document.getElementById('tab-appearance').textContent = char.appearance || 'No information available.';
         
-        // Populate Powers (Your custom splitting logic)
         const powersTab = document.getElementById('tab-powers');
         const abilities = char.powersAndAbilities;
         if (abilities) {
@@ -245,7 +240,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('tab-history').textContent = char.history || 'No information available.';
         document.getElementById('tab-relationships').textContent = char.relationships || 'No information available.';
 
-        // Add to Playlist Button
         const detailCardBody = modal.querySelector('.detail-card-body');
         const oldBtn = document.getElementById('modal-char-favorite-btn');
         if (oldBtn) oldBtn.remove();
@@ -259,7 +253,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         modal.classList.add('active');
 
-        // Tab Navigation Logic
         const tabNav = modal.querySelector('.tab-nav');
         if (tabNav) {
             const tabPanes = modal.querySelectorAll('.tab-pane');
@@ -276,7 +269,6 @@ document.addEventListener('DOMContentLoaded', () => {
             newTabNav.querySelector('button')?.click();
         }
 
-        // AI Logic
         const knowMoreBtn = modal.querySelector('.know-more-btn');
         const backBtn = modal.querySelector('.back-button');
         const aiContentDiv = modal.querySelector('.ai-details-content');
@@ -296,30 +288,16 @@ document.addEventListener('DOMContentLoaded', () => {
         backBtn.onclick = () => detailCard.classList.remove('ai-view');
     };
 
-    // --- CLOSE MODAL (With Scroll Unfreeze) ---
     const closeModal = () => {
-        // 2. UNFREEZE BACKGROUND SCROLLING (This was missing in your snippet!)
         document.body.style.overflow = ''; 
 
         modal.classList.remove('active');
     };
 
-    // --- Event Listeners ---
     if(closeButton) closeButton.addEventListener('click', closeModal);
     modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
 
-    // --- Initial Load ---
     fetchAndDisplay(currentCategory, currentPage);
 });
 
 
-    // const closeModal = () => {
-    //     // 2. UNFREEZE BACKGROUND SCROLLING
-    //     document.body.style.overflow = ''; 
-        
-    //     modal.classList.remove('active');
-        
-    //     // Cleanup (optional)
-    //     const detailCard = modal.querySelector('.detail-card');
-    //     if(detailCard) detailCard.classList.remove('ai-view');
-    // };

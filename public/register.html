@@ -3,36 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Ben 10 Database</title>
+    <title>Plumber Recruitment - Register</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="responsive.css">
-    <link rel="stylesheet" href="auth.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+   <style>
+    .main-nav {
+        display: flex;
+        align-items: center;      
+        gap: 30px;                
+    }
+
+    .main-nav .nav-link {
+        display: inline-flex;    
+        align-items: center;      
+        height: 100%;             
+        margin-left: 0 !important; 
+        line-height: 1;           
+        padding: 10px 0;          
+    }
+
+    .main-nav .nav-link:first-child {
+        color: var(--text-secondary); 
+    }
+
+    .main-nav .nav-link:first-child:hover {
+        color: #fff;
+    }
+</style>
+    <script src="audio.js"></script>
 </head>
-<body>
-    <div class="auth-container">
-        <form id="register-form" class="auth-form">
-            <h2>Create Plumber Account</h2>
-            <div id="message" class="message"></div>
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" required>
+<body class="auth-body">
+
+    <nav class="navbar">
+        <a href="index.html" class="nav-logo">
+            <img src="images/omnitrix.png" alt="Logo"> PLUMBER OS
+        </a>
+        <div class="main-nav">
+             <a href="index.html" class="nav-link">❮ Back to Gateway</a>
+             <a href="login.html" class="nav-link">Login</a>
+        </div>
+    </nav>
+
+    <main class="auth-wrapper">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h2>NEW RECRUIT REGISTRATION</h2>
+                <p>Authorized Personnel Only</p>
             </div>
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" required>
+            
+            <form id="register-form">
+                <div class="input-group">
+                    <label>CODENAME (USERNAME)</label>
+                    <input type="text" id="username" required placeholder="Choose a unique codename...">
+                </div>
+
+                <div class="input-group">
+                    <label>PLUMBER ID (EMAIL)</label>
+                    <input type="email" id="email" required placeholder="Enter valid email address...">
+                </div>
+                
+                <div class="input-group">
+                    <label>SET PASSCODE</label>
+                    <div class="password-container">
+                        <input type="password" id="password" required placeholder="Min 6 characters...">
+                        <span class="toggle-password" onclick="togglePassword('password', this)">👁️</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>CONFIRM PASSCODE</label>
+                    <div class="password-container">
+                        <input type="password" id="confirm-password" required placeholder="Re-enter passcode...">
+                        <span class="toggle-password" onclick="togglePassword('confirm-password', this)">👁️</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="auth-btn">
+                    SUBMIT APPLICATION
+                </button>
+            </form>
+            
+            <div class="auth-footer">
+                <p>Already have a badge? <a href="login.html">Access Terminal</a></p>
             </div>
-          <div class="input-group">
-    <label for="password">Password</label>
-    <div class="password-container">
-        <input type="password" id="password" placeholder="Create Password" required>
-        <span class="toggle-password" onclick="togglePassword('password', this)">👁️</span>
-    </div>
-</div>
-            <button type="submit" class="submit-btn">Register</button>
-            <p class="auth-link">Already have an account? <a href="login.html">Login here</a></p>
-        </form>
-    </div>
-    <script src="register.js"></script>
-</body>
+        </div>
+    </main>
+
+    <script src="auth.js"></script>
+    <script src="register.js"></script> </body>
 </html>

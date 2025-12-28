@@ -3,17 +3,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchBar = document.getElementById('search-bar');
     const filterNav = document.querySelector('.filter-nav');
     
-    // NEW: Elements for infinite scroll
     const sentinel = document.getElementById('scroll-sentinel');
     const sentinelLoader = sentinel.querySelector('.loader');
 
     let currentPage = 1;
     let currentSeries = 'All';
     let searchTimeout;
-    let isLoading = false; // Prevent duplicate fetches
-    let hasMoreData = true; // Track if API has more pages
+    let isLoading = false; 
+    let hasMoreData = true; 
 
-    // --- Core: Fetch & Display ---
     const fetchAndDisplay = async (series, page, shouldAppend = false) => {
         if (isLoading) return;
         isLoading = true;
@@ -36,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             renderGrid(data.results);
             
-            // Update state based on API response
             hasMoreData = data.hasNextPage;
             
             if (hasMoreData) {
@@ -54,18 +51,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- Observer for Infinite Scroll ---
     const observer = new IntersectionObserver((entries) => {
-        // If sentinel is visible, not currently loading, and we know there is more data
         if (entries[0].isIntersecting && !isLoading && hasMoreData) {
             currentPage++;
             fetchAndDisplay(currentSeries, currentPage, true);
         }
-    }, { rootMargin: '100px' }); // Load when user is 100px away from bottom
+    }, { rootMargin: '100px' });
 
-    // --- Search Logic ---
     const fetchSearchResults = async (term) => {
-        // Disable infinite scroll during search
         observer.unobserve(sentinel);
         sentinelLoader.style.display = 'none';
         
@@ -74,7 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!term) {
             filterNav.style.display = 'flex';
-            // Reset to normal view
             currentPage = 1;
             hasMoreData = true;
             fetchAndDisplay(currentSeries, 1, false);
@@ -118,7 +110,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // --- Event Listeners ---
     searchBar.addEventListener('input', (e) => {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
@@ -137,6 +128,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Initial Load
     fetchAndDisplay(currentSeries, currentPage);
 });

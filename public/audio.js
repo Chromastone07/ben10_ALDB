@@ -1,6 +1,4 @@
-/* ==========================================================================
-   PLUMBER OS: GLOBAL AUDIO SYSTEM (UI + BATTLE)
-   ========================================================================== */
+
 class GlobalAudio {
     constructor() {
         this.ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -13,7 +11,6 @@ class GlobalAudio {
         this.initListeners();
     }
 
-    /* --- CORE SYNTHESIZER --- */
     playTone(freq, type, duration, delay = 0) {
         if (this.muted) return;
         if (this.ctx.state === 'suspended') this.ctx.resume();
@@ -35,7 +32,6 @@ class GlobalAudio {
         osc.stop(this.ctx.currentTime + delay + duration);
     }
 
-    /* --- SPECIAL FX: NOISE (For Battle Impacts) --- */
     playNoise(duration = 0.5) {
         if (this.muted) return;
         if (this.ctx.state === 'suspended') this.ctx.resume();
@@ -44,7 +40,6 @@ class GlobalAudio {
         const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
         const data = buffer.getChannelData(0);
 
-        // Generate White Noise
         for (let i = 0; i < bufferSize; i++) {
             data[i] = Math.random() * 2 - 1;
         }
@@ -53,12 +48,11 @@ class GlobalAudio {
         noise.buffer = buffer;
         
         const gain = this.ctx.createGain();
-        // Filter to make it sound like a "thud" rather than static
         const filter = this.ctx.createBiquadFilter();
         filter.type = 'lowpass';
         filter.frequency.value = 500;
 
-        gain.gain.setValueAtTime(this.volume * 1.5, this.ctx.currentTime); // Slightly louder for impact
+        gain.gain.setValueAtTime(this.volume * 1.5, this.ctx.currentTime); 
         gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
 
         noise.connect(filter);
@@ -68,7 +62,6 @@ class GlobalAudio {
         noise.start();
     }
 
-    /* --- UI PRESETS --- */
     sfxHover() {
         const base = this.getBaseFreq();
         this.playTone(base, 'sine', 0.05);
@@ -92,9 +85,8 @@ class GlobalAudio {
         this.playTone(100, 'sawtooth', 0.2, 0.1);
     }
 
-    /* --- BATTLE PRESETS --- */
     sfxImpact() {
-        this.playNoise(0.4); // Calls the noise generator
+        this.playNoise(0.4); 
     }
 
     sfxPowerUp() {
@@ -114,7 +106,6 @@ class GlobalAudio {
         osc.stop(this.ctx.currentTime + 0.5);
     }
 
-    /* --- SYSTEM --- */
     getBaseFreq() {
         const body = document.body;
         if (body.classList.contains('theme-red')) return 300;
@@ -146,6 +137,5 @@ class GlobalAudio {
 const audioSystem = new GlobalAudio();
 window.playSuccess = () => audioSystem.sfxSuccess();
 window.playError = () => audioSystem.sfxError();
-// Expose Battle Sounds globally
 window.playImpact = () => audioSystem.sfxImpact();
 window.playPowerUp = () => audioSystem.sfxPowerUp();

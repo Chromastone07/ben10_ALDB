@@ -66,17 +66,16 @@
     text-align: center;
 }
 
-/* --- NEW: Infinite Scroll Styles --- */
+
 .load-more-container {
     text-align: center;
     padding: 2rem 0;
-    display: flex;             /* Use Flexbox */
-    justify-content: center;   /* Center horizontally */
-    align-items: center;       /* Center vertically */
-    width: 100%;               /* Full width */
+    display: flex;            
+    justify-content: center;  
+    align-items: center;       
+    width: 100%;               
 }
 
-/* Loader Animation */
 .loader {
     width: 50px;
     height: 50px;

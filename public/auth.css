@@ -77,7 +77,6 @@
     color: var(--accent-green); 
 }
 
-/* --- PASSWORD INPUT WRAPPER --- */
 .password-container {
     position: relative;
     width: 100%;
@@ -85,7 +84,7 @@
 
 .password-container input {
     width: 100%;
-    padding-right: 40px; /* Make room for the eye icon */
+    padding-right: 40px; 
 }
 
 .toggle-password {

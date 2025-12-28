@@ -66,3 +66,71 @@
     #chat-widget { bottom: 1rem; right: 1rem; }
     #chat-window { width: 95vw; height: 75vh; bottom: 70px; }
 }
+
+
+
+@media (max-width: 768px) {
+
+  
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .profile-info {
+        text-align: center;
+    }
+
+   
+    .navbar {
+        flex-direction: column;
+        height: auto;
+        padding: 10px 0;
+    }
+    
+    .nav-logo {
+        margin-bottom: 10px;
+    }
+
+    #main-nav {
+        display: flex;
+        flex-wrap: wrap; 
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .nav-link {
+        font-size: 0.8rem;
+        padding: 5px 10px;
+        background: rgba(0,0,0,0.3); 
+        border-radius: 4px;
+    }
+
+    
+    #roulette-img {
+        width: 60vw !important;
+        height: 60vw !important; 
+        max-width: 300px;
+        max-height: 300px;
+    }
+    
+    #roulette-text {
+        font-size: 1.5rem !important;
+    }
+
+    
+    .badges-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+    
+    .badge-icon {
+        font-size: 2rem;
+    }
+
+    .modal-content {
+        width: 95%; 
+        padding: 20px;
+    }
+}

@@ -1,11 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- 1. DOM ELEMENTS (Defined at top to prevent errors) ---
     const alienContainer = document.querySelector('.alien-container');
     const searchBar = document.getElementById('search-bar');
     const filterNav = document.querySelector('.filter-nav');
     
-    // Main Modal Elements
     const modal = document.getElementById('alien-modal');
     const closeButton = modal ? modal.querySelector('.close-button') : null;
     const animOmnitrix = document.getElementById('anim-omnitrix');
@@ -13,29 +11,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const animAlienImg = document.getElementById('anim-alien-img');
     const suggestionsBox = document.getElementById('suggestions-box');
     
-    // Sentinel for Scrolling
     const sentinel = document.getElementById('scroll-sentinel');
     const sentinelLoader = sentinel ? sentinel.querySelector('.loader') : null;
 
-    // Playlist Modal Elements
     const playlistSelectModal = document.getElementById('playlist-select-modal');
     const closePlaylistSelect = document.getElementById('close-playlist-select');
     const playlistListContainer = document.getElementById('playlist-list-container');
     const playlistLoader = document.getElementById('playlist-loader');
 
-    // Battle Mode Elements (The ones causing issues)
     const battleBtn = document.getElementById('battle-mode-btn');
     const battleModal = document.getElementById('battle-modal');
     const closeBattle = document.getElementById('close-battle'); // The "X" button
     const resetBattleBtn = document.getElementById('reset-battle-btn'); // The Reset button
     
-    // Battle Navigation & Setup
     const battleModeSelect = document.getElementById('battle-mode-select');
     const battleCustomSetup = document.getElementById('battle-custom-setup');
     const selectRandomBtn = document.getElementById('select-random-mode');
     const selectCustomBtn = document.getElementById('select-custom-mode');
     
-    // Custom Setup Inputs
     const customPlaylistSelect = document.getElementById('custom-playlist-select');
     const customHeroSelect = document.getElementById('custom-hero-select');
     const customVillainSelect = document.getElementById('custom-villain-select');
@@ -44,16 +37,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const backToModeBtn = document.getElementById('back-to-mode-btn');
     const startCustomBattleBtn = document.getElementById('start-custom-battle-btn');
 
-    // --- State Variables ---
     let currentPage = 1;
     let currentSeries = 'All';
     let searchTimeout;
     let isLoading = false;
     let userPlaylists = []; 
 
-    // --- 2. BATTLE MODE LOGIC (Fixed) ---
-
-    // Open Battle Modal
+    
     if(battleBtn) {
         battleBtn.addEventListener('click', async () => {
             if(window.SFX) window.SFX.playBeep();
@@ -62,7 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             battleModal.classList.add('active');
             
-            // Reset to Step 1
             if(battleModeSelect) battleModeSelect.style.display = 'block';
             if(battleCustomSetup) battleCustomSetup.style.display = 'none';
             document.getElementById('battle-arena').style.display = 'none';
@@ -73,14 +62,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Close Battle Modal (The "X" Button)
     if(closeBattle) {
         closeBattle.addEventListener('click', () => {
             battleModal.classList.remove('active');
         });
     }
 
-    // Mode Selection: Random
     if(selectRandomBtn) {
         selectRandomBtn.addEventListener('click', () => {
             if(window.SFX) window.SFX.playBeep();
@@ -92,7 +79,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Mode Selection: Custom
     if(selectCustomBtn) {
         selectCustomBtn.addEventListener('click', () => {
             if(window.SFX) window.SFX.playBeep();
@@ -103,7 +89,6 @@ document.addEventListener('DOMContentLoaded', () => {
             battleModeSelect.style.display = 'none';
             battleCustomSetup.style.display = 'block';
             
-            // Populate Playlists
             customPlaylistSelect.innerHTML = '';
             userPlaylists.forEach((pl, idx) => {
                 const opt = document.createElement('option');
@@ -115,7 +100,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Custom Mode Helpers
     if(customPlaylistSelect) customPlaylistSelect.addEventListener('change', updateCustomHeroList);
 
     function updateCustomHeroList() {
@@ -129,22 +113,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const opt = document.createElement('option');
             opt.value = alien.name;
             opt.dataset.img = alien.image;
-            // Store data in dataset for easy retrieval
             opt.dataset.species = alien.species || 'Unknown';
-            // Join abilities with a delimiter (e.g., |) to store in a string
             opt.dataset.abilities = (alien.abilities || []).join('|'); 
             
             opt.textContent = alien.name;
             customHeroSelect.appendChild(opt);
         });
         
-        // Trigger update for the first item
         if(items.length > 0) {
             updateHeroStats(customHeroSelect.options[0]);
         }
     }
 
-    // NEW Helper function to update text
     function updateHeroStats(selectedOption) {
         if(!selectedOption) return;
         
@@ -155,14 +135,13 @@ document.addEventListener('DOMContentLoaded', () => {
         powersList.innerHTML = '';
         
         const abilities = selectedOption.dataset.abilities ? selectedOption.dataset.abilities.split('|') : ['Standard Combat'];
-        abilities.slice(0, 3).forEach(ab => { // Limit to 3 to fit UI
+        abilities.slice(0, 3).forEach(ab => { 
             const li = document.createElement('li');
             li.textContent = ab;
             powersList.appendChild(li);
         });
     }
 
-    // Update the Event Listener for Hero Select
     if(customHeroSelect) {
         customHeroSelect.addEventListener('change', () => {
             const selectedOpt = customHeroSelect.options[customHeroSelect.selectedIndex];
@@ -170,7 +149,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Optional: Add descriptions for Villains
     const villainDescriptions = {
         "Vilgax": "Intergalactic conqueror. Strength, durability, laser eyes.",
         "Malware": "Galvanic Mechamorph. Absorbs technology.",
@@ -188,7 +166,6 @@ document.addEventListener('DOMContentLoaded', () => {
             img.src = `images/${filename}.png`;
             img.onerror = () => img.src = 'images/vilgax.png';
             
-            // Update Description
             const desc = villainDescriptions[val] || "A dangerous foe.";
             document.getElementById('villain-desc-text').textContent = desc;
         });
@@ -211,7 +188,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Unified Battle Initiator
     async function initiateBattle(team, customHero, customVillain, playlistItems) {
         if(window.SFX) window.SFX.playLock();
         
@@ -246,7 +222,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Arena Logic
     function setupArena(data, playlistItems) {
         document.getElementById('hero-health').style.width = '100%';
         document.getElementById('villain-health').style.width = '100%';
@@ -261,7 +236,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const heroItem = playlistItems.find(i => i.name === data.heroName);
         heroImg.src = heroItem ? heroItem.image : 'images/omnitrix.png';
 
-        // Villain Name Normalization
         let vName = data.villainName.toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, '_');
         if(vName.includes('dr_animo')) vName = 'dr_animo';
         if(vName.includes('kevin')) vName = 'kevin_levin';
@@ -324,16 +298,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if(resetBattleBtn) resetBattleBtn.style.display = 'inline-block';
     }
 
-    // Reset Button Logic (Fixed Reference)
-    // Reset Button Logic
+
     if(resetBattleBtn) {
         resetBattleBtn.addEventListener('click', () => {
             if(window.SFX) window.SFX.playBeep();
             
-            // Hide Arena
             document.getElementById('battle-arena').style.display = 'none';
             
-            // Show Mode Selection (Restart)
             if(battleModeSelect) battleModeSelect.style.display = 'block'; 
         });
     }
@@ -348,9 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 3. CORE FUNCTIONALITY (Aliens, Playlist, Search) ---
-
-    // Fetch Playlists Helper
+    
     const fetchUserPlaylists = async () => {
         const token = localStorage.getItem('token');
         if (!token) return [];
@@ -368,7 +337,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Add to Playlist Logic
     let pendingAlienToAdd = null; 
     const openPlaylistSelectionModal = async (alienId, alienName) => {
         const token = localStorage.getItem('token');
@@ -430,7 +398,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Fetch Aliens
     const fetchAliens = async (page, series, shouldAppend = false) => {
         if (!alienContainer) return;
         if (isLoading) return; 
@@ -469,7 +436,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Autocomplete
     const showSuggestions = (aliens) => {
         if(!suggestionsBox) return;
         suggestionsBox.innerHTML = '';
@@ -546,7 +512,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Filter & Scroll
     if(filterNav) {
         filterNav.addEventListener('click', (e) => {
             if (e.target.tagName === 'BUTTON') {
@@ -567,7 +532,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, { rootMargin: '100px' });
 
-    // Alien Detail Modal
     function showAlienDetails(alien) {
         if(!modal) return;
         if(window.SFX) window.SFX.playPowerUp(); 
@@ -661,7 +625,6 @@ document.addEventListener('DOMContentLoaded', () => {
         closeButton.addEventListener('click', () => modal.classList.remove('active'));
     }
 
-    // --- NEW FEATURE: OMNITRIX ROULETTE (INDEX ONLY) ---
     const rouletteBtn = document.getElementById('roulette-btn');
 
     if (rouletteBtn) {
@@ -673,7 +636,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             window.showGlobalToast("⚠️ OMNITRIX MALFUNCTION DETECTED! Rerouting DNA...", true); 
             
-            // Audio Ticking
             let ticks = 0;
             const tickInterval = setInterval(() => {
                 if(window.SFX) window.SFX.playTick();
@@ -693,7 +655,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     rouletteBtn.style.transform = 'none';
                     showAlienDetails(alien);
                     
-                    // Locked On Effect
                     const modalTitle = document.getElementById('modal-alien-name');
                     if(modalTitle) {
                         const originalColor = modalTitle.style.color;
@@ -711,7 +672,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Voice Setup
     let isTtsEnabled = false;
     let voices = [];
     const ttsButton = document.getElementById('chat-tts-btn');
@@ -740,7 +700,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Chat Widget Logic
     const chatToggleButton = document.getElementById('chat-toggle-btn');
     const chatWindow = document.getElementById('chat-window');
     const chatMessages = document.getElementById('chat-messages');
@@ -788,7 +747,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // Add this to public/script.js inside DOMContentLoaded
 const urlParams = new URLSearchParams(window.location.search);
 const searchParam = urlParams.get('search');
 
@@ -796,19 +754,15 @@ if (searchParam) {
     if(searchBar) searchBar.value = searchParam;
     
     setTimeout(async () => {
-        // Hide filters if they exist
         const filterNav = document.querySelector('.filter-nav');
         if(filterNav) filterNav.style.display = 'none';
         
         try {
-            // Trigger the search API
             const res = await fetch(`/api/aliens/search/${encodeURIComponent(searchParam)}`);
             const data = await res.json();
             
-            // If we find the alien, open it automatically
             if (data.results && data.results.length > 0) {
                 showAlienDetails(data.results[0]);
-                // Clear the URL so refreshing doesn't re-search
                 window.history.replaceState({}, document.title, "index.html"); 
             } else {
                  if(window.showGlobalToast) window.showGlobalToast(`No data found for species: ${searchParam}`, true);
@@ -817,6 +771,5 @@ if (searchParam) {
     }, 500);
 }
 
-    // Initial Load
     if(alienContainer) fetchAliens(currentPage, currentSeries);
 });
