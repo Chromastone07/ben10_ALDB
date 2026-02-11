@@ -1,141 +1,83 @@
-
-class GlobalAudio {
+class AudioSystem {
     constructor() {
-        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-        this.masterGain = this.ctx.createGain();
-        this.masterGain.connect(this.ctx.destination);
-        this.volume = 0.3; 
-        
-        this.muted = localStorage.getItem('plumber_muted') === 'true';
-        this.applyMuteState();
-        this.initListeners();
+        this.context = null;
+        this.gainNode = null;
+        this.isMuted = localStorage.getItem('plumber_muted') !== 'false'; 
+        this.buffers = {};
+        this.init();
     }
 
-    playTone(freq, type, duration, delay = 0) {
-        if (this.muted) return;
-        if (this.ctx.state === 'suspended') this.ctx.resume();
-
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, this.ctx.currentTime + delay);
-        
-        gain.gain.setValueAtTime(0, this.ctx.currentTime + delay);
-        gain.gain.linearRampToValueAtTime(this.volume, this.ctx.currentTime + delay + 0.05);
-        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + delay + duration);
-
-        osc.connect(gain);
-        gain.connect(this.masterGain);
-
-        osc.start(this.ctx.currentTime + delay);
-        osc.stop(this.ctx.currentTime + delay + duration);
-    }
-
-    playNoise(duration = 0.5) {
-        if (this.muted) return;
-        if (this.ctx.state === 'suspended') this.ctx.resume();
-
-        const bufferSize = this.ctx.sampleRate * duration;
-        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-        const data = buffer.getChannelData(0);
-
-        for (let i = 0; i < bufferSize; i++) {
-            data[i] = Math.random() * 2 - 1;
+    init() {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            this.context = new AudioContext();
+            this.gainNode = this.context.createGain();
+            this.gainNode.connect(this.context.destination);
+            
+            this.updateVolume();
+            
+            this.loadSounds();
+        } catch (e) {
+            console.warn("AudioContext not supported");
         }
+    }
 
-        const noise = this.ctx.createBufferSource();
-        noise.buffer = buffer;
+    loadSounds() {
+        const sounds = {
+            hover: 'sounds/hover.mp3',
+            click: 'sounds/click.mp3',
+            lock: 'sounds/lock.mp3',
+            albedo: 'sounds/albedo_transform.mp3' 
+        };
+
+        for (const [key, url] of Object.entries(sounds)) {
+            fetch(url)
+                .then(res => res.arrayBuffer())
+                .then(data => this.context.decodeAudioData(data))
+                .then(buffer => { this.buffers[key] = buffer; })
+                .catch(() => {}); 
+        }
+    }
+
+    playSound(name, force = false) {
+        if ((this.isMuted && !force) || !this.context || !this.buffers[name]) return;
+
+        if (this.context.state === 'suspended') this.context.resume();
+
+        const source = this.context.createBufferSource();
+        source.buffer = this.buffers[name];
+        source.connect(this.gainNode);
+        source.start(0);
+    }
+
+    playFile(url, force = false) {
+        if ((this.isMuted && !force) || !this.context) return;
         
-        const gain = this.ctx.createGain();
-        const filter = this.ctx.createBiquadFilter();
-        filter.type = 'lowpass';
-        filter.frequency.value = 500;
-
-        gain.gain.setValueAtTime(this.volume * 1.5, this.ctx.currentTime); 
-        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
-
-        noise.connect(filter);
-        filter.connect(gain);
-        gain.connect(this.masterGain);
-        
-        noise.start();
+        const audio = new Audio(url);
+        audio.volume = 0.5;
+        audio.play().catch(e => console.log("Audio play blocked"));
     }
 
-    sfxHover() {
-        const base = this.getBaseFreq();
-        this.playTone(base, 'sine', 0.05);
-        this.playTone(base * 1.5, 'sine', 0.05, 0.05);
+    setMute(shouldMute) {
+        this.isMuted = shouldMute;
+        localStorage.setItem('plumber_muted', shouldMute);
+        this.updateVolume();
     }
 
-    sfxClick() {
-        const base = this.getBaseFreq();
-        this.playTone(base * 0.8, 'square', 0.1);
-        this.playTone(base * 0.4, 'sawtooth', 0.15, 0.05);
+    updateVolume() {
+        if (this.gainNode) {
+            const now = this.context.currentTime;
+            this.gainNode.gain.cancelScheduledValues(now);
+            this.gainNode.gain.setValueAtTime(this.gainNode.gain.value, now);
+            this.gainNode.gain.linearRampToValueAtTime(this.isMuted ? 0 : 0.5, now + 0.1);
+        }
     }
 
-    sfxSuccess() {
-        const base = this.getBaseFreq();
-        this.playTone(base, 'sine', 0.1);
-        this.playTone(base * 1.5, 'sine', 0.2, 0.1);
-    }
-
-    sfxError() {
-        this.playTone(150, 'sawtooth', 0.15);
-        this.playTone(100, 'sawtooth', 0.2, 0.1);
-    }
-
-    sfxImpact() {
-        this.playNoise(0.4); 
-    }
-
-    sfxPowerUp() {
-        if (this.muted) return;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(100, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(1000, this.ctx.currentTime + 0.5);
-        
-        gain.gain.setValueAtTime(this.volume, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.5);
-        
-        osc.connect(gain);
-        gain.connect(this.masterGain);
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.5);
-    }
-
-    getBaseFreq() {
-        const body = document.body;
-        if (body.classList.contains('theme-red')) return 300;
-        if (body.classList.contains('theme-blue')) return 800;
-        return 440;
-    }
-
-    setMute(isMuted) {
-        this.muted = isMuted;
-        localStorage.setItem('plumber_muted', isMuted);
-        this.applyMuteState();
-    }
-
-    applyMuteState() {
-        this.masterGain.gain.value = this.muted ? 0 : this.volume;
-    }
-
-    initListeners() {
-        document.addEventListener('mouseover', (e) => {
-            if (e.target.closest('a, button, .alien-card, input')) this.sfxHover();
-        });
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('a, button, .alien-card')) this.sfxClick();
-            if (this.ctx.state === 'suspended') this.ctx.resume();
-        });
-    }
+    playBeep() { this.playSound('hover'); }
+    playClick() { this.playSound('click'); }
+    playLock() { this.playSound('lock'); }
+    playTheme(url) { this.playFile(url, true); } 
 }
 
-const audioSystem = new GlobalAudio();
-window.playSuccess = () => audioSystem.sfxSuccess();
-window.playError = () => audioSystem.sfxError();
-window.playImpact = () => audioSystem.sfxImpact();
-window.playPowerUp = () => audioSystem.sfxPowerUp();
+
+window.audioSystem = new AudioSystem();
