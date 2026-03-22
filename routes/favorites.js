@@ -1,29 +1,36 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../middleware/auth');
 const User = require('../models/user');
+const auth = require('../middleware/auth'); // PROTECT THE ROUTE
 
+// @route   POST api/favorites/add
+// @desc    Add an item to user favorites
+router.post('/add', auth, async (req, res) => {
+    const { itemId, itemType } = req.body; // itemType: 'alien', 'character', or 'planet'
 
-router.get('/ids', auth, async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).select('alienPlaylists activeAlienPlaylist characterPlaylists activeCharacterPlaylist planetPlaylists activePlanetPlaylist');
-        if (!user) {
-            return res.status(404).json({ msg: 'User not found' });
+        const user = await User.findById(req.user.id); // Get user from token
+        if (!user) return res.status(404).json({ msg: 'User not found' });
+
+        // Map the type to the correct array in the User model
+        const fieldMap = {
+            'alien': 'favoriteAliens',
+            'character': 'favoriteCharacters',
+            'planet': 'favoritePlanets'
+        };
+
+        const targetField = fieldMap[itemType];
+        if (!targetField) return res.status(400).json({ msg: 'Invalid item type' });
+
+        // Prevent duplicates
+        if (user[targetField].includes(itemId)) {
+            return res.status(400).json({ msg: 'Item already in favorites' });
         }
 
-        const findItemIds = (playlists, activeId) => {
-            if (!activeId) return [];
-            const activePlaylist = playlists.find(p => p._id.equals(activeId));
-            return activePlaylist ? activePlaylist.items : [];
-        };
+        user[targetField].push(itemId);
+        await user.save();
 
-        const favoriteIds = {
-            aliens: findItemIds(user.alienPlaylists, user.activeAlienPlaylist),
-            characters: findItemIds(user.characterPlaylists, user.activeCharacterPlaylist),
-            planets: findItemIds(user.planetPlaylists, user.activePlanetPlaylist)
-        };
-
-        res.json(favoriteIds);
+        res.json({ msg: 'Added to favorites', favorites: user[targetField] });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');

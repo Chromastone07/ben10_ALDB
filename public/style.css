@@ -1419,3 +1419,43 @@ body.theme-purple {
     transform: scale(1.1);
     transition: all 0.3s ease;
 }
+
+
+body.theme-red {
+    --accent-cyan: #ff3333; 
+    --accent-green: #ff0000;
+    --glow-cyan: rgba(255, 51, 51, 0.6);
+    --glow-green: rgba(255, 0, 0, 0.8);
+}
+
+body.theme-blue {
+    --accent-cyan: #3388ff; 
+    --accent-green: #0044ff;
+    --glow-cyan: rgba(51, 136, 255, 0.6);
+    --glow-green: rgba(0, 68, 255, 0.8);
+ 
+}
+
+body.theme-purple {
+    --accent-cyan: #d633ff; 
+    --accent-green: #aa00ff;
+    --glow-cyan: rgba(214, 51, 255, 0.6);
+    --glow-green: rgba(170, 0, 255, 0.8);
+}
+
+@media (max-width: 768px) {
+    :root {
+        --nav-height: 60px; 
+    }
+    
+    .alien-container, .character-grid {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 1rem;
+        padding: 0 15px;
+    }
+    
+    .navbar {
+        padding: 10px 20px;
+        flex-direction: row; 
+    }
+}

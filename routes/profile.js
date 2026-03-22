@@ -1,134 +1,56 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../middleware/auth');
 const User = require('../models/user');
-const bcrypt = require('bcryptjs'); 
+const auth = require('../middleware/auth'); // ALWAYS use auth for profiles
 
-const RANKS = [
-    { name: 'Recruit', minTime: 0 },
-    { name: 'Plumber', minTime: 5 },       
-    { name: 'Magister', minTime: 30 },     
-    { name: 'Proctor', minTime: 60 },      
-    { name: 'Grand Magistrate', minTime: 1440 } 
-];
-
-
+// @route   GET api/profile/me
+// @desc    Get current user profile
 router.get('/me', auth, async (req, res) => {
     try {
+        // Find user but don't return the password hash
         const user = await User.findById(req.user.id).select('-password');
-        if (!user) return res.status(400).json({ msg: 'User not found' });
-
-        const now = new Date();
-        const joined = new Date(user.date);
-        const diffMinutes = Math.floor((now - joined) / 1000 / 60);
-
-        let currentRank = 'Recruit';
-        let nextRank = 'Max Rank';
-        let progress = 100;
-
-        for (let i = 0; i < RANKS.length; i++) {
-            if (diffMinutes >= RANKS[i].minTime) {
-                currentRank = RANKS[i].name;
-                if (i + 1 < RANKS.length) {
-                    const next = RANKS[i + 1];
-                    const prev = RANKS[i];
-                    nextRank = next.name;
-                    const totalNeeded = next.minTime - prev.minTime;
-                    const currentGained = diffMinutes - prev.minTime;
-                    progress = Math.floor((currentGained / totalNeeded) * 100);
-                } else {
-                    progress = 100;
-                }
-            }
-        }
-
-        if (user.rank !== currentRank) {
-            user.rank = currentRank;
-            await user.save();
-        }
-
-        const badges = [];
-        badges.push({ name: "Recruit", desc: "Joined the Plumbers", icon: "🔰", unlocked: true });
-        const hasPlaylists = user.alienPlaylists && user.alienPlaylists.length > 0;
-        badges.push({ name: "Collector", desc: "Created a DNA Playlist", icon: "🧬", unlocked: hasPlaylists });
-        const isVeteran = RANKS.findIndex(r => r.name === currentRank) >= 2;
-        badges.push({ name: "Veteran", desc: "Reached Rank: Magister", icon: "🎖️", unlocked: isVeteran });
-        const hasFavs = user.favoriteAliens && user.favoriteAliens.length >= 5;
-        badges.push({ name: "Xenobiologist", desc: "Saved 5+ Aliens", icon: "👽", unlocked: hasFavs });
-
-        res.json({
-            ...user._doc,
-            rank: currentRank,
-            nextRank,
-            progress,
-            timeActive: diffMinutes,
-            badges
-        });
-
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
-    }
-});
-
-
-router.put('/avatar', auth, async (req, res) => {
-    try {
-        const { avatar } = req.body;
-        let user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ msg: 'User not found' });
-        user.avatar = avatar;
-        await user.save();
         res.json(user);
     } catch (err) {
-        console.error(err.message);
         res.status(500).send('Server Error');
     }
 });
 
-
+// @route   PUT api/profile/update
+// @desc    Update avatar or other basic info
 router.put('/update', auth, async (req, res) => {
+    const { avatar } = req.body;
     try {
-        const { username } = req.body;
         const user = await User.findById(req.user.id);
-        if (!user) return res.status(404).json({ msg: 'User not found' });
-
-        if (username) user.username = username;
-        await user.save();
-        res.json(user);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
-    }
-});
-
-router.put('/change-password', auth, async (req, res) => {
-    try {
-        const { currentPassword, newPassword } = req.body;
-        const user = await User.findById(req.user.id);
-        if (!user) return res.status(404).json({ msg: 'User not found' });
-
-        const isMatch = await bcrypt.compare(currentPassword, user.password);
-        if (!isMatch) return res.status(400).json({ msg: 'Invalid Current Password' });
-
-        const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(newPassword, salt);
         
+        // Basic validation for avatar path
+        if (avatar && avatar.startsWith('images/')) {
+            user.avatar = avatar;
+        }
+
         await user.save();
-        res.json({ msg: 'Password updated' });
+        res.json({ msg: 'Profile updated successfully', avatar: user.avatar });
     } catch (err) {
-        console.error(err.message);
         res.status(500).send('Server Error');
     }
 });
 
-
-router.delete('/me', auth, async (req, res) => {
+// @route   PUT api/profile/rankup
+// @desc    Logic for promotion (can be tied to user activity later)
+router.put('/rankup', auth, async (req, res) => {
+    const ranks = ['Recruit', 'Plumber', 'Magister', 'Proctor', 'Grand Magistrate'];
     try {
-        await User.findOneAndDelete({ _id: req.user.id });
-        res.json({ msg: 'User deleted' });
+        const user = await User.findById(req.user.id);
+        const currentIndex = ranks.indexOf(user.rank);
+
+        if (currentIndex < ranks.length - 1) {
+            user.rank = ranks[currentIndex + 1];
+            await user.save();
+            return res.json({ msg: `Promoted to ${user.rank}!`, rank: user.rank });
+        }
+        
+        res.json({ msg: 'You have reached the highest rank.', rank: user.rank });
     } catch (err) {
-        console.error(err.message);
         res.status(500).send('Server Error');
     }
 });

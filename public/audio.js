@@ -77,6 +77,26 @@ class AudioSystem {
     playClick() { this.playSound('click'); }
     playLock() { this.playSound('lock'); }
     playTheme(url) { this.playFile(url, true); } 
+
+
+    playTransformation(theme) {
+        if (!this.context) return;
+        
+        
+        this.playFile('sounds/omnitrix-ativado.mp3', true); 
+
+        const oscillator = this.context.createOscillator();
+        const filter = this.context.createBiquadFilter();
+        
+        filter.type = 'lowpass';
+        filter.frequency.value = (theme === 'red') ? 300 : 800;
+
+        oscillator.connect(filter);
+        filter.connect(this.gainNode);
+
+        oscillator.start();
+        oscillator.stop(this.context.currentTime + 1.5); 
+    }
 }
 
 

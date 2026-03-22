@@ -2,10 +2,16 @@ const express = require('express');
 const router = express.Router();
 const Alien = require('../models/alien');
 
+// Escape regex special characters to prevent ReDoS
+function escapeRegex(text) {
+    return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+}
+
+// @route GET /api/aliens (With filtering and pagination)
 router.get('/', async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 12;
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = Math.max(1, parseInt(req.query.limit) || 12);
         const series = req.query.series;
         const skip = (page - 1) * limit;
 
@@ -24,61 +30,40 @@ router.get('/', async (req, res) => {
             hasNextPage: (page * limit) < total
         });
     } catch (err) {
-        console.error(err.message);
+        console.error("Alien Fetch Error:", err.message);
         res.status(500).send('Server Error');
     }
 });
 
-
+// @route GET /api/aliens/search/:term (Secure Search)
 router.get('/search/:term', async (req, res) => {
     try {
-        const term = req.params.term;
+        const safeTerm = escapeRegex(req.params.term); // PROTECT AGAINST REDOS
         
         const aliens = await Alien.find({
             $or: [
-                { name: { $regex: term, $options: 'i' } },
-                { species: { $regex: term, $options: 'i' } }
+                { name: { $regex: safeTerm, $options: 'i' } },
+                { species: { $regex: safeTerm, $options: 'i' } }
             ]
         }).limit(5);
 
         res.json({ results: aliens });
     } catch (err) {
-        console.error(err.message);
+        console.error("Search Error:", err.message);
         res.status(500).send('Server Error');
     }
 });
 
+// Omnitrix Roulette (Random Alien)
 router.get('/random', async (req, res) => {
     try {
         const count = await Alien.countDocuments();
+        if (count === 0) return res.status(404).json({ msg: 'Codon Stream is empty.' });
+        
         const random = Math.floor(Math.random() * count);
-        
         const alien = await Alien.findOne().skip(random);
-        
-        if (!alien) {
-            return res.status(404).json({ msg: 'No aliens found in the Codon Stream.' });
-        }
-        
         res.json(alien);
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
-    }
-});
-
-
-router.get('/:id', async (req, res) => {
-    try {
-        const alien = await Alien.findById(req.params.id);
-        if (!alien) {
-            return res.status(404).json({ msg: 'Alien not found' });
-        }
-        res.json(alien);
-    } catch (err) {
-        console.error(err.message);
-        if (err.kind === 'ObjectId') {
-            return res.status(404).json({ msg: 'Alien not found' });
-        }
         res.status(500).send('Server Error');
     }
 });

@@ -660,11 +660,7 @@ body {
     box-shadow: 0 0 15px #ff0000 !important;
 }
 
-.navbar {
-    display: flex;
-    align-items: center; 
-    height: 70px; 
-}
+
 
 .nav-logo {
     display: flex;
